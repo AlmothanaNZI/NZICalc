@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shipping &amp; Logistics Cost Calculator</title>
+    <title>Shipping Calculator - Step-by-Step Wizard</title>
     <style>
         :root {
             /* Primitive Color Tokens */
@@ -149,9 +149,89 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: var(--space-16);
+        }
+
+        /* Wizard Layout */
+        .wizard-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--space-32));
+        }
+
+        .wizard-progress {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-16);
+            margin-bottom: var(--space-16);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-16);
+            flex-wrap: wrap;
+            gap: var(--space-8);
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            padding: var(--space-8) var(--space-12);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--duration-fast) var(--ease-standard);
+            cursor: pointer;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .step.active {
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+        }
+
+        .step.completed {
+            background: var(--color-success);
+            color: var(--color-white);
+        }
+
+        .step.inactive {
+            background: var(--color-secondary);
+            color: var(--color-text-secondary);
+        }
+
+        .wizard-content {
+            flex: 1;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+            box-shadow: var(--shadow-sm);
+            overflow-y: auto;
+        }
+
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-16);
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            margin-top: var(--space-16);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
         }
 
         .header {
@@ -376,6 +456,26 @@
             color: var(--color-text-secondary);
             font-weight: var(--font-weight-medium);
         }
+        
+        #unified-costs-table {
+            font-size: var(--font-size-xs);
+        }
+        
+        #unified-costs-table th {
+            text-align: center;
+            white-space: nowrap;
+            padding: var(--space-6) var(--space-8);
+        }
+        
+        #unified-costs-table td {
+            text-align: center;
+            padding: var(--space-4) var(--space-6);
+        }
+        
+        #unified-costs-table input {
+            text-align: center;
+            font-size: var(--font-size-xs);
+        }
 
         .toolbar {
             display: flex;
@@ -561,430 +661,305 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Shipping &amp; Logistics Cost Calculator</h1>
-            <p>Professional international shipping cost calculation with FOB/CIF pricing terms</p>
-        </div>
-
-        <div class="toolbar">
-            <div class="toolbar-group">
-                <button class="btn btn--primary" onclick="exportToPDF()">📄 Export PDF</button>
-                <button class="btn btn--secondary" onclick="saveTemplate()">💾 Save Template</button>
-                <button class="btn btn--secondary" onclick="loadTemplate()">📂 Load Template</button>
-                <button class="btn btn--secondary" onclick="newQuote()">🆕 New Quote</button>
-                <button class="btn btn--secondary" onclick="runTestCases()">🧪 Run Test</button>
-            </div>
-            <div class="toolbar-group">
-                <span>Progress: <span id="progress-text">0%</span></span>
+            <h1>Shipping Calculator - Step-by-Step Wizard</h1>
+            <p>Professional shipping cost calculation with improved user experience</p>
+            <div style="margin-top: var(--space-16); display: flex; gap: var(--space-8); justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn--primary" onclick="loadSampleData()">🧪 Test with Sample Data</button>
+                <button class="btn btn--secondary" onclick="startNew()">🆕 Start New</button>
+                <button class="btn btn--secondary" onclick="exportResults()">📄 Export PDF</button>
             </div>
         </div>
 
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-        </div>
-
-        <!-- Section 1: General Information -->
-        <div class="section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2>1. General Information</h2>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="section-content">
-                <!-- Customer Information -->
-                <h3 class="mb-16">Customer Information</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label required">Customer Name
-                            <span class="tooltip" data-tooltip="Enter the name of the customer requesting the quotation">ℹ️</span>
-                        </label>
-                        <input type="text" class="form-control" id="customer-name" required>
-                        <div class="error-message" id="customer-name-error"></div>
+        <div class="wizard-container">
+            <div class="wizard-progress">
+                <div class="progress-steps">
+                    <div class="step active" data-step="1" onclick="goToStep(1)">
+                        <span>1. Setup</span>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Customer Country
-                            <span class="tooltip" data-tooltip="Destination country for the shipment">ℹ️</span>
-                        </label>
-                        <input type="text" class="form-control" id="customer-country">
+                    <div class="step inactive" data-step="2" onclick="goToStep(2)">
+                        <span>2. Products</span>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Shipping Term
-                            <span class="tooltip" data-tooltip="Select the international trade term (FOB, CIF, EXW, DDP)">ℹ️</span>
-                        </label>
-                        <select class="form-control" id="shipping-term">
-                            <option value="">Select Term</option>
-                            <option value="FOB">FOB - Free on Board</option>
-                            <option value="CIF">CIF - Cost, Insurance, Freight</option>
-                            <option value="EXW">EXW - Ex Works</option>
-                            <option value="DDP">DDP - Delivered Duty Paid</option>
-                        </select>
+                    <div class="step inactive" data-step="3" onclick="goToStep(3)">
+                        <span>3. Quantities</span>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Expected Month
-                            <span class="tooltip" data-tooltip="Expected shipment month">ℹ️</span>
-                        </label>
-                        <input type="month" class="form-control" id="expected-month">
+                    <div class="step inactive" data-step="4" onclick="goToStep(4)">
+                        <span>4. Added Costs, HS Code &amp; Tariffs</span>
+                    </div>
+                    <div class="step inactive" data-step="5" onclick="goToStep(5)">
+                        <span>5. Review</span>
                     </div>
                 </div>
-
-                <!-- Source Information -->
-                <h3 class="mb-16">Source Information</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Vendor Name
-                            <span class="tooltip" data-tooltip="Name of the supplier/vendor">ℹ️</span>
-                        </label>
-                        <input type="text" class="form-control" id="vendor-name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Source Country
-                            <span class="tooltip" data-tooltip="Country of origin for the goods">ℹ️</span>
-                        </label>
-                        <input type="text" class="form-control" id="source-country">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Transit Time (Days)
-                            <span class="tooltip" data-tooltip="Shipping time in days from port to port">ℹ️</span>
-                        </label>
-                        <input type="number" class="form-control" id="transit-time" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Production Time (Days)
-                            <span class="tooltip" data-tooltip="Manufacturing lead time in days">ℹ️</span>
-                        </label>
-                        <input type="number" class="form-control" id="production-time" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Payment Terms
-                            <span class="tooltip" data-tooltip="Payment terms and conditions">ℹ️</span>
-                        </label>
-                        <input type="text" class="form-control" id="payment-terms">
-                    </div>
-                </div>
-
-                <!-- Container Capacity -->
-                <h3 class="mb-16">Container Capacity</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Container Capacity Percentage
-                            <span class="tooltip" data-tooltip="How much of the container capacity will be utilized (1-100%)">ℹ️</span>
-                        </label>
-                        <input type="number" class="form-control" id="capacity-percentage" value="100" min="1" max="100">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">All Containers Weight (lbs)
-                            <span class="tooltip" data-tooltip="Total weight of all containers in pounds">ℹ️</span>
-                        </label>
-                        <input type="number" class="form-control" id="containers-weight" min="0" step="0.01">
-                    </div>
-                </div>
-
-                <!-- Container Capacity Table -->
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Container Type</th>
-                                <th>Base Capacity</th>
-                                <th>Actual Capacity</th>
-                            </tr>
-                        </thead>
-                        <tbody id="container-capacity-table">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Added Costs Section -->
-                <h3 class="mb-16">Added Costs per Container</h3>
-                <h4 class="mb-16" style="color: var(--color-fob)">FOB Added Costs</h4>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Container Type</th>
-                                <th>HS CODE FOB</th>
-                                <th>TARIFFS FOB</th>
-                                <th>INLAND FOB</th>
-                                <th>OTHERS FOB</th>
-                                <th>Total Added Costs</th>
-                                <th>Total Added Costs per UOM</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fob-added-costs-table">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <h4 class="mb-16 mt-16" style="color: var(--color-cif)">CIF Added Costs</h4>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Container Type</th>
-                                <th>HS CODE CIF</th>
-                                <th>TARIFFS CIF</th>
-                                <th>INLAND CIF</th>
-                                <th>OTHERS CIF</th>
-                                <th>Total Added Costs</th>
-                                <th>Total Added Costs per UOM</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cif-added-costs-table">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 20%"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- Section 4: Enter Costs (MUST COME BEFORE SECTION 2) -->
-        <div class="section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2>4. Enter Costs (Cost Input &amp; OSO Markup)</h2>
-                <span class="toggle-icon">▼</span>
+            <div class="wizard-content">
+                <!-- STEP 1: QUOTATION SETUP -->
+                <div class="step-content active" id="step-1">
+                    <h2 style="margin-bottom: var(--space-24);">Step 1: Quotation Setup</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">Customer Name</label>
+                            <input type="text" class="form-control" id="customer-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Customer Country</label>
+                            <input type="text" class="form-control" id="customer-country">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vendor Name</label>
+                            <input type="text" class="form-control" id="vendor-name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vendor Country</label>
+                            <input type="text" class="form-control" id="vendor-country">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Shipping Term</label>
+                            <select class="form-control" id="shipping-term">
+                                <option value="">Select Term</option>
+                                <option value="FOB">FOB - Free on Board</option>
+                                <option value="CIF">CIF - Cost, Insurance, Freight</option>
+                                <option value="EXW">EXW - Ex Works</option>
+                                <option value="DDP">DDP - Delivered Duty Paid</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Expected Month</label>
+                            <input type="month" class="form-control" id="expected-month">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Transit Time (Days)</label>
+                            <input type="number" class="form-control" id="transit-time" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Production Time (Days)</label>
+                            <input type="number" class="form-control" id="production-time" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Terms</label>
+                            <input type="text" class="form-control" id="payment-terms">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Container Capacity %</label>
+                            <input type="number" class="form-control" id="capacity-percentage" value="100" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">OSO % (Overhead, Sourcing, Operations)</label>
+                            <input type="number" class="form-control" id="oso-percentage" value="15" min="0" max="99.99" step="0.01" required>
+                            <div class="error-message" id="oso-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: PRODUCT ENTRY -->
+                <div class="step-content" id="step-2">
+                    <h2 style="margin-bottom: var(--space-24);">Step 2: Product Entry (Max 8 Products)</h2>
+                    
+                    <div style="margin-bottom: var(--space-16); display: flex; gap: var(--space-8); flex-wrap: wrap;">
+                        <button class="btn btn--primary btn--sm" onclick="addProductCard()">➕ Add Product</button>
+                        <span style="align-self: center;">Products: <span id="product-count">0</span>/8</span>
+                    </div>
+                    
+                    <div id="products-container" style="display: grid; gap: var(--space-16);">
+                        <!-- Product cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- STEP 3: CONTAINER QUANTITIES -->
+                <div class="step-content" id="step-3">
+                    <h2 style="margin-bottom: var(--space-24);">Step 3: Container Quantities</h2>
+                    
+                    <div class="table-container">
+                        <table class="data-table" id="quantities-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>20' Qty</th>
+                                    <th>40' Qty</th>
+                                    <th>40'HC Qty</th>
+                                    <th>45'HC Qty</th>
+                                    <th>53' Qty</th>
+                                    <th>FOB Total</th>
+                                    <th>CIF Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quantities-tbody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="summary-grid" style="margin-top: var(--space-24);">
+                        <div class="summary-card">
+                            <div class="summary-value" id="total-containers">0</div>
+                            <div class="summary-label">Total Containers</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="total-fob-value">$0</div>
+                            <div class="summary-label">Total FOB Value</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="total-cif-value">$0</div>
+                            <div class="summary-label">Total CIF Value</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4: ADDED COSTS, HS CODE & TARIFFS -->
+                <div class="step-content" id="step-4">
+                    <h2 style="margin-bottom: var(--space-24);">Step 4: Added Costs, HS Code &amp; Tariffs</h2>
+                    
+                    <div class="form-grid" style="margin-bottom: var(--space-24);">
+                        <div class="form-group">
+                            <label class="form-label">HS CODE Number</label>
+                            <input type="text" class="form-control" id="hs-code" placeholder="e.g., 8471.30.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">HS CODE Percentage (%)</label>
+                            <input type="number" class="form-control" id="hs-percentage" min="0" max="100" step="0.01" placeholder="e.g., 5">
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table" id="unified-costs-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Container Type</th>
+                                    <th colspan="6" class="fob">FOB Costs</th>
+                                    <th colspan="6" class="cif">CIF Costs</th>
+                                </tr>
+                                <tr>
+                                    <th class="fob">Container Value</th>
+                                    <th class="fob">HS Code %</th>
+                                    <th class="fob">HS Charge</th>
+                                    <th class="fob">Tariffs</th>
+                                    <th class="fob">Inland</th>
+                                    <th class="fob">Others</th>
+                                    <th class="cif">Container Value</th>
+                                    <th class="cif">HS Code %</th>
+                                    <th class="cif">HS Charge</th>
+                                    <th class="cif">Tariffs</th>
+                                    <th class="cif">Inland</th>
+                                    <th class="cif">Others</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unified-costs-tbody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- STEP 5: REVIEW & RESULTS -->
+                <div class="step-content" id="step-5">
+                    <h2 style="margin-bottom: var(--space-24);">Step 5: Review &amp; Results</h2>
+                    
+                    <div class="summary-grid" style="margin-bottom: var(--space-24);">
+                        <div class="summary-card">
+                            <div class="summary-value" id="final-products">0</div>
+                            <div class="summary-label">Total Products</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="final-containers">0</div>
+                            <div class="summary-label">Total Containers</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="final-fob-total">$0</div>
+                            <div class="summary-label">Total FOB Value</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="final-cif-total">$0</div>
+                            <div class="summary-label">Total CIF Value</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-24);">
+                        <div>
+                            <h3 style="color: var(--color-fob);">FOB Landed Costs Summary</h3>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Base UOM</th>
+                                            <th>Landed UOM</th>
+                                            <th>Landed Each</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fob-summary-tbody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="color: var(--color-cif);">CIF Landed Costs Summary</h3>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Base UOM</th>
+                                            <th>Landed UOM</th>
+                                            <th>Landed Each</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cif-summary-tbody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="section-content">
-                <div class="alert alert--warning">
-                    <strong>⚠️ STEP 1:</strong> Enter your base costs here first. These costs will automatically flow to Section 2 (Product Information) with OSO markup applied.
-                    <br><strong>Formula:</strong> Cost with OSO = Initial Cost ÷ (1 - OSO%/100)
-                    <br><strong>Example:</strong> $10 initial cost with 15% OSO = $10 ÷ (1 - 0.15) = $11.76
+
+            <div class="wizard-navigation">
+                <button class="btn btn--secondary" id="back-btn" onclick="previousStep()" disabled>
+                    ← Back
+                </button>
+                
+                <div style="display: flex; gap: var(--space-8);">
+                    <span id="validation-status"></span>
                 </div>
                 
-                <div class="form-grid mb-24">
-                    <div class="form-group">
-                        <label class="form-label required">OSO % (Overhead, Sourcing, Operations)
-                            <span class="tooltip" data-tooltip="Markup percentage for overhead, sourcing, and operations costs. Cannot be 100% or higher.">ℹ️</span>
-                        </label>
-                        <input type="number" class="form-control" id="oso-percentage" value="15" min="0" max="99.99" step="0.01" required>
-                        <div class="error-message" id="oso-percentage-error"></div>
-                    </div>
-                </div>
-
-                <h3 class="mb-16" style="color: var(--color-fob)">FOB Costs (Enter Base Costs)</h3>
-                <div class="table-container">
-                    <table class="data-table" id="fob-costs-table">
-                        <thead>
-                            <tr>
-                                <th>Product #</th>
-                                <th style="background: var(--color-white); color: var(--color-text)">Enter FOB Initial Cost ($)</th>
-                                <th style="background: var(--color-fob-light); color: var(--color-fob)">Cost with OSO % ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fob-costs-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3 class="mb-16 mt-16" style="color: var(--color-cif)">CIF Costs (Enter Base Costs)</h3>
-                <div class="table-container">
-                    <table class="data-table" id="cif-costs-table">
-                        <thead>
-                            <tr>
-                                <th>Product #</th>
-                                <th style="background: var(--color-white); color: var(--color-text)">Enter CIF Initial Cost ($)</th>
-                                <th style="background: var(--color-cif-light); color: var(--color-cif)">Cost with OSO % ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cif-costs-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
+                <button class="btn btn--primary" id="next-btn" onclick="nextStep()">
+                    Next →
+                </button>
             </div>
         </div>
 
-        <!-- Section 2: Product Information -->
-        <div class="section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2>2. Product Information</h2>
-                <span class="toggle-icon">▼</span>
+
+
+        <!-- Verification Panel (Hidden by default) -->
+        <div class="section hidden" id="verification-panel">
+            <div class="section-header" style="background: var(--color-success); color: white;">
+                <h2>✅ Test Data Verification Results</h2>
+                <button class="btn btn--sm" style="background: white; color: var(--color-success);" onclick="hideVerification()">Close</button>
             </div>
             <div class="section-content">
-                <div class="alert alert--success">
-                    <strong>✅ STEP 2:</strong> Prices shown here are automatically calculated from Section 4 (Enter Costs) with OSO markup applied. These are READ-ONLY displays.
-                    <br><strong>Next:</strong> Enter Pack sizes and product details, then proceed to Section 2B for quantities.
-                </div>
-                
-                <div class="toolbar mb-16">
-                    <div class="toolbar-group">
-                        <button class="btn btn--primary btn--sm" onclick="addProduct()">➕ Add Product</button>
-                        <button class="btn btn--secondary btn--sm" onclick="duplicateProduct()">📋 Duplicate</button>
-                        <button class="btn btn--danger btn--sm" onclick="clearAllProducts()">🗑️ Clear All</button>
-                    </div>
-                    <div class="toolbar-group">
-                        <span>Products: <span id="product-count">0</span>/8</span>
-                    </div>
-                </div>
-
-                <div class="table-container">
-                    <table class="data-table" id="product-table">
-                        <thead>
-                            <tr>
-                                <th rowspan="2">Product Description</th>
-                                <th rowspan="2">Brand</th>
-                                <th rowspan="2">Pack</th>
-                                <th rowspan="2">Size</th>
-                                <th colspan="2" class="fob">FOB Pricing</th>
-                                <th colspan="2" class="cif">CIF Pricing</th>
-                                <th rowspan="2">CBF</th>
-                                <th rowspan="2">WGT/LBS</th>
-                                <th rowspan="2">Actions</th>
-                            </tr>
-                            <tr>
-                                <th class="fob">UOM Price</th>
-                                <th class="fob">Each Price</th>
-                                <th class="cif">UOM Price</th>
-                                <th class="cif">Each Price</th>
-                            </tr>
-                        </thead>
-                        <tbody id="product-table-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 2B: FOB Quotation (Total QTY & Container Costs) -->
-        <div class="section">
-            <div class="section-header fob" onclick="toggleSection(this)">
-                <h2>2B. FOB Quotation (Container Quantities &amp; Costs)</h2>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="section-content">
-                <div class="table-container">
-                    <table class="data-table" id="fob-quotation-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>20' Qty</th>
-                                <th>20' Cost</th>
-                                <th>40' Qty</th>
-                                <th>40' Cost</th>
-                                <th>40' HC Qty</th>
-                                <th>40' HC Cost</th>
-                                <th>45' HC Qty</th>
-                                <th>45' HC Cost</th>
-                                <th>53' Qty</th>
-                                <th>53' Cost</th>
-                                <th>HS Code %</th>
-                                <th>HS Code Charge</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fob-quotation-table-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 2C: CIF Quotation (Total QTY & Container Costs) -->
-        <div class="section">
-            <div class="section-header cif" onclick="toggleSection(this)">
-                <h2>2C. CIF Quotation (Container Quantities &amp; Costs)</h2>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="section-content">
-                <div class="table-container">
-                    <table class="data-table" id="cif-quotation-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>20' Qty</th>
-                                <th>20' Cost</th>
-                                <th>40' Qty</th>
-                                <th>40' Cost</th>
-                                <th>40' HC Qty</th>
-                                <th>40' HC Cost</th>
-                                <th>45' HC Qty</th>
-                                <th>45' HC Cost</th>
-                                <th>53' Qty</th>
-                                <th>53' Cost</th>
-                                <th>HS Code %</th>
-                                <th>HS Code Charge</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cif-quotation-table-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 3: Landed Costs -->
-        <div class="section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2>3. Landed Costs (UOM / EACH)</h2>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="section-content">
-                <h3 class="mb-16" style="color: var(--color-fob)">FOB Landed Costs</h3>
-                <div class="table-container">
-                    <table class="data-table" id="landed-costs-fob-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>20' UOM</th>
-                                <th>20' Each</th>
-                                <th>40' UOM</th>
-                                <th>40' Each</th>
-                                <th>40' HC UOM</th>
-                                <th>40' HC Each</th>
-                                <th>45' HC UOM</th>
-                                <th>45' HC Each</th>
-                                <th>53' UOM</th>
-                                <th>53' Each</th>
-                            </tr>
-                        </thead>
-                        <tbody id="landed-costs-fob-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3 class="mb-16 mt-16" style="color: var(--color-cif)">CIF Landed Costs</h3>
-                <div class="table-container">
-                    <table class="data-table" id="landed-costs-cif-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>20' UOM</th>
-                                <th>20' Each</th>
-                                <th>40' UOM</th>
-                                <th>40' Each</th>
-                                <th>40' HC UOM</th>
-                                <th>40' HC Each</th>
-                                <th>45' HC UOM</th>
-                                <th>45' HC Each</th>
-                                <th>53' UOM</th>
-                                <th>53' Each</th>
-                            </tr>
-                        </thead>
-                        <tbody id="landed-costs-cif-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
+                <div id="verification-results"></div>
             </div>
         </div>
 
 
 
-        <!-- Summary Dashboard -->
-        <div class="section">
-            <div class="section-header" onclick="toggleSection(this)">
-                <h2>Summary Dashboard</h2>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="section-content">
-                <div class="summary-grid" id="summary-dashboard">
-                    <!-- Dynamic content -->
-                </div>
-            </div>
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
     </div>
 
     <script>
@@ -999,10 +974,78 @@
 
         const CONTAINER_TYPES = ['20', '40', '40HC', '45HC', '53'];
         const MAX_PRODUCTS = 8;
+        
+        // Sample test data
+        const SAMPLE_DATA = {
+            setup: {
+                customerName: "ABC Import Co.",
+                customerCountry: "USA",
+                vendorName: "XYZ Manufacturing",
+                vendorCountry: "China",
+                shippingTerm: "FOB",
+                expectedMonth: "2024-11",
+                transitTime: 30,
+                productionTime: 45,
+                paymentTerms: "30% deposit, 70% on shipment",
+                capacityPercent: 100,
+                osoPercent: 15
+            },
+            products: [
+                {
+                    description: "Widget Pro 3000",
+                    brand: "ProBrand",
+                    pack: 12,
+                    size: "Large",
+                    cbf: 2.5,
+                    weight: 25,
+                    fobInitialCost: 10.00,
+                    cifInitialCost: 12.50,
+                    expectedFobWithOSO: 11.76,
+                    expectedFobEach: 0.98,
+                    expectedCifWithOSO: 14.71,
+                    expectedCifEach: 1.23
+                },
+                {
+                    description: "Super Gadget",
+                    brand: "MegaCorp",
+                    pack: 24,
+                    size: "Medium",
+                    cbf: 1.8,
+                    weight: 18,
+                    fobInitialCost: 8.50,
+                    cifInitialCost: 10.00,
+                    expectedFobWithOSO: 10.00,
+                    expectedFobEach: 0.42,
+                    expectedCifWithOSO: 11.76,
+                    expectedCifEach: 0.49
+                }
+            ],
+            quantities: {
+                product1: { '20': 2, '40': 1, '40HC': 0, '45HC': 0, '53': 0 },
+                product2: { '20': 0, '40': 0, '40HC': 1, '45HC': 0, '53': 0 }
+            },
+            addedCosts: {
+                '20': { hsCodeFob: 100, tariffsFob: 150, inlandFob: 200, othersFob: 50,
+                       hsCodeCif: 120, tariffsCif: 180, inlandCif: 220, othersCif: 60 },
+                '40': { hsCodeFob: 200, tariffsFob: 300, inlandFob: 400, othersFob: 100,
+                       hsCodeCif: 220, tariffsCif: 330, inlandCif: 420, othersCif: 110 },
+                '40HC': { hsCodeFob: 250, tariffsFob: 350, inlandFob: 450, othersFob: 120,
+                         hsCodeCif: 270, tariffsCif: 380, inlandCif: 470, othersCif: 130 },
+                '45HC': { hsCodeFob: 300, tariffsFob: 400, inlandFob: 500, othersFob: 150,
+                         hsCodeCif: 320, tariffsCif: 430, inlandCif: 520, othersCif: 160 },
+                '53': { hsCodeFob: 350, tariffsFob: 450, inlandFob: 550, othersFob: 180,
+                       hsCodeCif: 370, tariffsCif: 480, inlandCif: 570, othersCif: 190 }
+            },
+            hsCode: {
+                code: "8471.30.01",
+                percent: 5
+            }
+        };
 
         // Global state
+        let currentStep = 1;
         let products = [];
-        let quotationData = {};
+        let quantities = {};
         let addedCosts = {
             fob: {
                 '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
@@ -1019,21 +1062,18 @@
                 '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
             }
         };
+        let hsData = { code: '', percent: 0 };
 
         // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            loadFromStorage();
-            // Don't add product by default - let users start with Section 4
+            initializeWizard();
+            updateStepDisplay();
+            setupEventListeners();
         });
 
-        function initializeApp() {
-            updateContainerCapacityTable();
-            updateAddedCostsTables();
-            setupEventListeners();
-            updateProgressBar();
-            // Initialize cost tables even with no products
-            updateCostsTables();
+        function initializeWizard() {
+            updateUnifiedCostsTable();
+            updateAllTables();
         }
 
         function setupEventListeners() {
@@ -1042,33 +1082,184 @@
             inputs.forEach(input => {
                 input.addEventListener('input', debounce(() => {
                     calculateAll();
-                    updateProgressBar();
-                    autoSave();
+                    updateValidationStatus();
                 }, 300));
             });
 
-            // Container capacity percentage change
-            document.getElementById('capacity-percentage').addEventListener('input', updateContainerCapacityTable);
-            
             // OSO percentage validation
             document.getElementById('oso-percentage').addEventListener('input', function() {
                 validateOSOPercentage();
                 calculateAll();
             });
+            
+            // HS Code inputs
+            document.getElementById('hs-code').addEventListener('input', function() {
+                hsData.code = this.value;
+                calculateAll();
+            });
+            
+            document.getElementById('hs-percentage').addEventListener('input', function() {
+                hsData.percent = parseFloat(this.value) || 0;
+                updateHSPercentage(this.value);
+            });
+        }
+        
+        // Wizard Navigation Functions
+        function goToStep(stepNumber) {
+            if (stepNumber < 1 || stepNumber > 5) return;
+            if (stepNumber > currentStep + 1 && !canAdvanceToStep(stepNumber)) return;
+            
+            currentStep = stepNumber;
+            updateStepDisplay();
+            updateAllTables();
+        }
+        
+        function nextStep() {
+            if (validateCurrentStep() && currentStep < 5) {
+                currentStep++;
+                updateStepDisplay();
+                updateAllTables();
+            }
+        }
+        
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+        
+        function updateStepDisplay() {
+            // Update step indicators
+            document.querySelectorAll('.step').forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('active', 'completed', 'inactive');
+                
+                if (stepNum === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                } else {
+                    step.classList.add('inactive');
+                }
+            });
+            
+            // Update content display
+            document.querySelectorAll('.step-content').forEach((content, index) => {
+                content.classList.remove('active');
+                if (index + 1 === currentStep) {
+                    content.classList.add('active');
+                }
+            });
+            
+            // Update navigation buttons
+            document.getElementById('back-btn').disabled = currentStep === 1;
+            const nextBtn = document.getElementById('next-btn');
+            if (currentStep === 5) {
+                nextBtn.textContent = '✅ Complete';
+                nextBtn.onclick = completeWizard;
+            } else {
+                nextBtn.textContent = 'Next →';
+                nextBtn.onclick = nextStep;
+            }
+            
+            // Update progress bar
+            const progress = (currentStep / 5) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+        }
+        
+        function validateCurrentStep() {
+            switch (currentStep) {
+                case 1:
+                    return validateStep1();
+                case 2:
+                    return validateStep2();
+                case 3:
+                case 4:
+                case 5:
+                    return true; // Optional steps
+                default:
+                    return true;
+            }
+        }
+        
+        function validateStep1() {
+            const customerName = document.getElementById('customer-name').value.trim();
+            const osoValid = validateOSOPercentage();
+            
+            if (!customerName) {
+                document.getElementById('customer-name').classList.add('error');
+                updateValidationStatus('❌ Customer name is required');
+                return false;
+            }
+            
+            document.getElementById('customer-name').classList.remove('error');
+            
+            if (!osoValid) {
+                updateValidationStatus('❌ Valid OSO percentage required');
+                return false;
+            }
+            
+            updateValidationStatus('✅ Step valid');
+            return true;
+        }
+        
+        function validateStep2() {
+            if (products.length === 0) {
+                updateValidationStatus('❌ At least one product required');
+                return false;
+            }
+            
+            let hasValidProduct = false;
+            for (let product of products) {
+                if (product.description.trim() && (product.fobInitialCost > 0 || product.cifInitialCost > 0)) {
+                    hasValidProduct = true;
+                    break;
+                }
+            }
+            
+            if (!hasValidProduct) {
+                updateValidationStatus('❌ At least one product must have description and cost');
+                return false;
+            }
+            
+            updateValidationStatus('✅ Step valid');
+            return true;
+        }
+        
+        function updateValidationStatus(message) {
+            document.getElementById('validation-status').textContent = message;
+        }
+        
+        function canAdvanceToStep(stepNumber) {
+            for (let i = 1; i < stepNumber; i++) {
+                const prevStep = currentStep;
+                currentStep = i;
+                if (!validateCurrentStep()) {
+                    currentStep = prevStep;
+                    return false;
+                }
+            }
+            currentStep = stepNumber - 1; // Reset to allow normal advance
+            return true;
+        }
+        
+        function completeWizard() {
+            alert('Quotation completed! You can now export the results.');
         }
         
         function validateOSOPercentage() {
             const osoInput = document.getElementById('oso-percentage');
-            const errorDiv = document.getElementById('oso-percentage-error');
+            const errorDiv = document.getElementById('oso-error');
             const osoValue = parseFloat(osoInput.value) || 0;
             
             if (osoValue >= 100) {
                 osoInput.classList.add('error');
-                errorDiv.textContent = 'OSO % must be less than 100%. At 100%, cost calculation would be infinite.';
+                errorDiv.textContent = 'OSO % must be less than 100%';
                 return false;
             } else if (osoValue < 0) {
                 osoInput.classList.add('error');
-                errorDiv.textContent = 'OSO % cannot be negative.';
+                errorDiv.textContent = 'OSO % cannot be negative';
                 return false;
             } else {
                 osoInput.classList.remove('error');
@@ -1077,50 +1268,483 @@
             }
         }
 
-        function updateAddedCostsTables() {
-            updateAddedCostsTable('fob');
-            updateAddedCostsTable('cif');
+        // Sample Data Loading & Testing
+        function loadSampleData() {
+            if (!confirm('Load sample test data? This will replace current data.')) return;
+            
+            // Load setup data
+            const setup = SAMPLE_DATA.setup;
+            document.getElementById('customer-name').value = setup.customerName;
+            document.getElementById('customer-country').value = setup.customerCountry;
+            document.getElementById('vendor-name').value = setup.vendorName;
+            document.getElementById('vendor-country').value = setup.vendorCountry;
+            document.getElementById('shipping-term').value = setup.shippingTerm;
+            document.getElementById('expected-month').value = setup.expectedMonth;
+            document.getElementById('transit-time').value = setup.transitTime;
+            document.getElementById('production-time').value = setup.productionTime;
+            document.getElementById('payment-terms').value = setup.paymentTerms;
+            document.getElementById('capacity-percentage').value = setup.capacityPercent;
+            document.getElementById('oso-percentage').value = setup.osoPercent;
+            
+            // Load products
+            products = [];
+            SAMPLE_DATA.products.forEach((productData, index) => {
+                const product = {
+                    id: `product_${Date.now()}_${index}`,
+                    description: productData.description,
+                    brand: productData.brand,
+                    pack: productData.pack,
+                    size: productData.size,
+                    cbf: productData.cbf,
+                    weight: productData.weight,
+                    fobInitialCost: productData.fobInitialCost,
+                    cifInitialCost: productData.cifInitialCost
+                };
+                products.push(product);
+            });
+            
+            // Load quantities
+            quantities = {};
+            products.forEach((product, index) => {
+                const key = `product${index + 1}`;
+                if (SAMPLE_DATA.quantities[key]) {
+                    quantities[product.id] = SAMPLE_DATA.quantities[key];
+                }
+            });
+            
+            // Load added costs - HS Code costs will be calculated automatically
+            Object.keys(SAMPLE_DATA.addedCosts).forEach(containerType => {
+                const costs = SAMPLE_DATA.addedCosts[containerType];
+                addedCosts.fob[containerType] = {
+                    hsCode: 0, // Will be calculated from percentage
+                    tariffs: costs.tariffsFob,
+                    inland: costs.inlandFob,
+                    others: costs.othersFob
+                };
+                addedCosts.cif[containerType] = {
+                    hsCode: 0, // Will be calculated from percentage
+                    tariffs: costs.tariffsCif,
+                    inland: costs.inlandCif,
+                    others: costs.othersCif
+                };
+            });
+            
+            // Load HS Code data
+            hsData = SAMPLE_DATA.hsCode;
+            document.getElementById('hs-code').value = hsData.code;
+            document.getElementById('hs-percentage').value = hsData.percent;
+            
+            // Calculate HS charges based on the loaded percentage
+            updateHSPercentage(hsData.percent);
+            
+            calculateAll();
+            updateAllTables();
+            
+            // Show verification
+            runVerification();
         }
-
-        function updateAddedCostsTable(type) {
-            const tbody = document.getElementById(`${type}-added-costs-table`);
+        
+        function runVerification() {
+            let results = '<h3>🧪 Calculation Verification Results</h3><div style="font-family: var(--font-family-mono); font-size: var(--font-size-sm);">';
+            
+            // Test 1: OSO Calculation
+            const product1 = products[0];
+            if (product1) {
+                const osoPercent = 15;
+                const fobInitial = 10;
+                const expectedFOBWithOSO = fobInitial / (1 - (osoPercent / 100));
+                const actualFOBWithOSO = calculateCostWithOSO(product1.fobInitialCost);
+                
+                results += `<p><strong>Test 1 - OSO Markup:</strong><br>`;
+                results += `Formula: $${fobInitial} ÷ (1 - 0.15) = $${fobInitial} ÷ 0.85 = $${expectedFOBWithOSO.toFixed(2)}<br>`;
+                results += `Expected: $${expectedFOBWithOSO.toFixed(2)} | Actual: $${actualFOBWithOSO.toFixed(2)} | `;
+                results += `${Math.abs(expectedFOBWithOSO - actualFOBWithOSO) < 0.01 ? '✅ PASS' : '❌ FAIL'}</p>`;
+                
+                // Test 2: Pack Division
+                const expectedEach = expectedFOBWithOSO / product1.pack;
+                const actualEach = calculateFOBEachPrice(product1);
+                
+                results += `<p><strong>Test 2 - Pack Division:</strong><br>`;
+                results += `Formula: $${expectedFOBWithOSO.toFixed(2)} ÷ ${product1.pack} = $${expectedEach.toFixed(2)}<br>`;
+                results += `Expected: $${expectedEach.toFixed(2)} | Actual: $${actualEach.toFixed(2)} | `;
+                results += `${Math.abs(expectedEach - actualEach) < 0.01 ? '✅ PASS' : '❌ FAIL'}</p>`;
+                
+                // Test 3: Container Cost
+                if (quantities[product1.id] && quantities[product1.id]['20']) {
+                    const qty = quantities[product1.id]['20'];
+                    const expectedContainerCost = qty * expectedFOBWithOSO;
+                    const actualContainerCost = calculateContainerCost(product1, '20', qty, 'fob');
+                    
+                    results += `<p><strong>Test 3 - Container Cost:</strong><br>`;
+                    results += `Formula: ${qty} × $${expectedFOBWithOSO.toFixed(2)} = $${expectedContainerCost.toFixed(2)}<br>`;
+                    results += `Expected: $${expectedContainerCost.toFixed(2)} | Actual: $${actualContainerCost.toFixed(2)} | `;
+                    results += `${Math.abs(expectedContainerCost - actualContainerCost) < 0.01 ? '✅ PASS' : '❌ FAIL'}</p>`;
+                }
+                
+                // Test 4: HS Code Charge
+                const totalValue = calculateTotalProductValue(product1, 'fob');
+                const expectedHSCharge = totalValue * (hsData.percent / 100);
+                const actualHSCharge = calculateProductHSCharge(product1, 'fob');
+                
+                results += `<p><strong>Test 4 - HS Code Charge:</strong><br>`;
+                results += `Formula: $${totalValue.toFixed(2)} × ${hsData.percent}% = $${expectedHSCharge.toFixed(2)}<br>`;
+                results += `Expected: $${expectedHSCharge.toFixed(2)} | Actual: $${actualHSCharge.toFixed(2)} | `;
+                results += `${Math.abs(expectedHSCharge - actualHSCharge) < 0.01 ? '✅ PASS' : '❌ FAIL'}</p>`;
+            }
+            
+            results += '</div>';
+            
+            document.getElementById('verification-results').innerHTML = results;
+            document.getElementById('verification-panel').classList.remove('hidden');
+            
+            // Scroll to verification panel
+            document.getElementById('verification-panel').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function hideVerification() {
+            document.getElementById('verification-panel').classList.add('hidden');
+        }
+        
+        function updateUnifiedCostsTable() {
+            const tbody = document.getElementById('unified-costs-tbody');
+            if (!tbody) return;
+            
             tbody.innerHTML = '';
             
             CONTAINER_TYPES.forEach(containerType => {
-                const costs = addedCosts[type][containerType];
-                const totalAddedCosts = costs.hsCode + costs.tariffs + costs.inland + costs.others;
-                const totalQuantityInContainer = calculateTotalQuantityInContainer(containerType);
-                const totalAddedCostsPerUOM = totalQuantityInContainer > 0 ? totalAddedCosts / totalQuantityInContainer : 0;
+                const fobCosts = addedCosts.fob[containerType];
+                const cifCosts = addedCosts.cif[containerType];
+                
+                // Calculate container values for this container type
+                const fobContainerValue = calculateContainerValueForType(containerType, 'fob');
+                const cifContainerValue = calculateContainerValueForType(containerType, 'cif');
+                
+                // Calculate HS charges - use stored values that get updated automatically
+                const hsPercent = parseFloat(document.getElementById('hs-percentage').value) || 0;
+                const fobHSCharge = addedCosts.fob[containerType].hsCode;
+                const cifHSCharge = addedCosts.cif[containerType].hsCode;
                 
                 const row = document.createElement('tr');
+                // Only show editable HS percentage in first row, others show calculated value
+                const isFirstRow = containerType === '20';
+                
                 row.innerHTML = `
-                    <td>${containerType}' Container</td>
-                    <td><input type="number" value="${costs.hsCode}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'hsCode', parseFloat(this.value) || 0)"></td>
-                    <td><input type="number" value="${costs.tariffs}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'tariffs', parseFloat(this.value) || 0)"></td>
-                    <td><input type="number" value="${costs.inland}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'inland', parseFloat(this.value) || 0)"></td>
-                    <td><input type="number" value="${costs.others}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'others', parseFloat(this.value) || 0)"></td>
-                    <td class="calculated">$${totalAddedCosts.toFixed(2)}</td>
-                    <td class="calculated">$${totalAddedCostsPerUOM.toFixed(2)}</td>
+                    <td><strong>${containerType}'</strong></td>
+                    <td class="calculated">$${fobContainerValue.toFixed(2)}</td>
+                    <td>${isFirstRow ? `<input type="number" value="${hsPercent}" min="0" max="100" step="0.01" onchange="updateHSPercentage(this.value)" style="width: 80px;">%` : `<span class="calculated">${hsPercent}%</span>`}</td>
+                    <td class="calculated">$${fobHSCharge.toFixed(2)}</td>
+                    <td><input type="number" value="${fobCosts.tariffs}" min="0" step="0.01" onchange="updateAddedCost('fob', '${containerType}', 'tariffs', parseFloat(this.value) || 0)" style="width: 100px;"></td>
+                    <td><input type="number" value="${fobCosts.inland}" min="0" step="0.01" onchange="updateAddedCost('fob', '${containerType}', 'inland', parseFloat(this.value) || 0)" style="width: 100px;"></td>
+                    <td><input type="number" value="${fobCosts.others}" min="0" step="0.01" onchange="updateAddedCost('fob', '${containerType}', 'others', parseFloat(this.value) || 0)" style="width: 100px;"></td>
+                    <td class="calculated">$${cifContainerValue.toFixed(2)}</td>
+                    <td class="calculated">${hsPercent}%</td>
+                    <td class="calculated">$${cifHSCharge.toFixed(2)}</td>
+                    <td><input type="number" value="${cifCosts.tariffs}" min="0" step="0.01" onchange="updateAddedCost('cif', '${containerType}', 'tariffs', parseFloat(this.value) || 0)" style="width: 100px;"></td>
+                    <td><input type="number" value="${cifCosts.inland}" min="0" step="0.01" onchange="updateAddedCost('cif', '${containerType}', 'inland', parseFloat(this.value) || 0)" style="width: 100px;"></td>
+                    <td><input type="number" value="${cifCosts.others}" min="0" step="0.01" onchange="updateAddedCost('cif', '${containerType}', 'others', parseFloat(this.value) || 0)" style="width: 100px;"></td>
                 `;
                 tbody.appendChild(row);
             });
+        }
+        
+        function calculateContainerValueForType(containerType, type) {
+            let totalValue = 0;
+            products.forEach(product => {
+                const productQty = quantities[product.id] || {};
+                const qty = productQty[containerType] || 0;
+                if (qty > 0) {
+                    totalValue += calculateContainerCost(product, containerType, qty, type);
+                }
+            });
+            return totalValue;
+        }
+        
+        function updateHSPercentage(value) {
+            const hsPercent = parseFloat(value) || 0;
+            document.getElementById('hs-percentage').value = hsPercent;
+            hsData.percent = hsPercent;
+            
+            // Update HS Code charges for all container types based on the new percentage
+            CONTAINER_TYPES.forEach(containerType => {
+                const fobContainerValue = calculateContainerValueForType(containerType, 'fob');
+                const cifContainerValue = calculateContainerValueForType(containerType, 'cif');
+                
+                addedCosts.fob[containerType].hsCode = (hsPercent / 100) * fobContainerValue;
+                addedCosts.cif[containerType].hsCode = (hsPercent / 100) * cifContainerValue;
+            });
+            
+            // Update all HS Code percentage fields in the table and recalculate
+            calculateAll();
+            updateUnifiedCostsTable();
+            updateAllTables();
         }
 
         function updateAddedCost(type, containerType, costType, value) {
             addedCosts[type][containerType][costType] = value;
             calculateAll();
+            updateAllTables();
         }
 
-        function calculateTotalQuantityInContainer(containerType) {
-            let total = 0;
-            products.forEach(product => {
-                if (quotationData[product.id] && quotationData[product.id][containerType]) {
-                    total += quotationData[product.id][containerType].qty || 0;
-                }
+        // Product Management Functions
+        function addProductCard() {
+            if (products.length >= MAX_PRODUCTS) {
+                alert(`Maximum ${MAX_PRODUCTS} products allowed`);
+                return;
+            }
+            
+            const product = {
+                id: `product_${Date.now()}`,
+                description: '',
+                brand: '',
+                pack: 1,
+                size: '',
+                cbf: 0,
+                weight: 0,
+                fobInitialCost: 0,
+                cifInitialCost: 0
+            };
+            
+            products.push(product);
+            quantities[product.id] = { '20': 0, '40': 0, '40HC': 0, '45HC': 0, '53': 0 };
+            
+            updateProductsDisplay();
+            updateProductCount();
+        }
+        
+        function removeProduct(productId) {
+            products = products.filter(p => p.id !== productId);
+            delete quantities[productId];
+            updateProductsDisplay();
+            updateProductCount();
+            calculateAll();
+        }
+        
+        function updateProductsDisplay() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.padding = 'var(--space-16)';
+                
+                const fobWithOSO = calculateCostWithOSO(product.fobInitialCost);
+                const fobEach = product.pack > 0 ? fobWithOSO / product.pack : 0;
+                const cifWithOSO = calculateCostWithOSO(product.cifInitialCost);
+                const cifEach = product.pack > 0 ? cifWithOSO / product.pack : 0;
+                
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-16);">
+                        <h4>Product ${index + 1}</h4>
+                        <button class="btn btn--danger btn--sm" onclick="removeProduct('${product.id}')">🗑️ Remove</button>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" value="${product.description}" onchange="updateProductField('${product.id}', 'description', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Brand</label>
+                            <input type="text" class="form-control" value="${product.brand}" onchange="updateProductField('${product.id}', 'brand', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pack Size</label>
+                            <input type="number" class="form-control" value="${product.pack}" min="1" onchange="updateProductField('${product.id}', 'pack', parseInt(this.value) || 1)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Size</label>
+                            <input type="text" class="form-control" value="${product.size}" onchange="updateProductField('${product.id}', 'size', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CBF</label>
+                            <input type="number" class="form-control" value="${product.cbf}" min="0" step="0.01" onchange="updateProductField('${product.id}', 'cbf', parseFloat(this.value) || 0)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Weight (lbs)</label>
+                            <input type="number" class="form-control" value="${product.weight}" min="0" step="0.01" onchange="updateProductField('${product.id}', 'weight', parseFloat(this.value) || 0)">
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); margin-top: var(--space-16);">
+                        <div style="border: 2px solid var(--color-fob); border-radius: var(--radius-base); padding: var(--space-12);">
+                            <h5 style="color: var(--color-fob); margin-bottom: var(--space-8);">FOB Costs</h5>
+                            <div class="form-group">
+                                <label class="form-label">Initial Cost ($)</label>
+                                <input type="number" class="form-control" value="${product.fobInitialCost}" min="0" step="0.01" onchange="updateProductField('${product.id}', 'fobInitialCost', parseFloat(this.value) || 0)">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cost with OSO ($)</label>
+                                <input type="text" class="form-control calculated" value="$${fobWithOSO.toFixed(2)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">UOM Price ($)</label>
+                                <input type="text" class="form-control calculated" value="$${fobWithOSO.toFixed(2)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Each Price ($)</label>
+                                <input type="text" class="form-control calculated" value="$${fobEach.toFixed(2)}" readonly>
+                            </div>
+                        </div>
+                        
+                        <div style="border: 2px solid var(--color-cif); border-radius: var(--radius-base); padding: var(--space-12);">
+                            <h5 style="color: var(--color-cif); margin-bottom: var(--space-8);">CIF Costs</h5>
+                            <div class="form-group">
+                                <label class="form-label">Initial Cost ($)</label>
+                                <input type="number" class="form-control" value="${product.cifInitialCost}" min="0" step="0.01" onchange="updateProductField('${product.id}', 'cifInitialCost', parseFloat(this.value) || 0)">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cost with OSO ($)</label>
+                                <input type="text" class="form-control calculated" value="$${cifWithOSO.toFixed(2)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">UOM Price ($)</label>
+                                <input type="text" class="form-control calculated" value="$${cifWithOSO.toFixed(2)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Each Price ($)</label>
+                                <input type="text" class="form-control calculated" value="$${cifEach.toFixed(2)}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
             });
-            return total;
+        }
+        
+        function updateProductField(productId, field, value) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product[field] = value;
+                calculateAll();
+                updateProductsDisplay(); // Refresh to show new calculated values
+                updateAllTables();
+            }
+        }
+        
+        function updateProductCount() {
+            const countElement = document.getElementById('product-count');
+            if (countElement) {
+                countElement.textContent = products.length;
+            }
         }
 
+        // Update all tables when data changes
+        function updateAllTables() {
+            updateProductsDisplay();
+            updateQuantitiesTable();
+            updateUnifiedCostsTable();
+            updateSummaryTables();
+            updateTotals();
+        }
+        
+        function updateQuantitiesTable() {
+            const tbody = document.getElementById('quantities-tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const productQty = quantities[product.id] || {};
+                const row = document.createElement('tr');
+                
+                let fobTotal = 0;
+                let cifTotal = 0;
+                
+                CONTAINER_TYPES.forEach(containerType => {
+                    const qty = productQty[containerType] || 0;
+                    fobTotal += calculateContainerCost(product, containerType, qty, 'fob');
+                    cifTotal += calculateContainerCost(product, containerType, qty, 'cif');
+                });
+                
+                row.innerHTML = `
+                    <td>${product.description || `Product ${index + 1}`}</td>
+                    ${CONTAINER_TYPES.map(containerType => `
+                        <td><input type="number" value="${productQty[containerType] || 0}" min="0" onchange="updateQuantity('${product.id}', '${containerType}', parseInt(this.value) || 0)"></td>
+                    `).join('')}
+                    <td class="calculated">$${fobTotal.toFixed(2)}</td>
+                    <td class="calculated">$${cifTotal.toFixed(2)}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateQuantity(productId, containerType, quantity) {
+            if (!quantities[productId]) {
+                quantities[productId] = {};
+            }
+            quantities[productId][containerType] = quantity;
+            calculateAll();
+            updateAllTables();
+        }
+        
+        // HS Charges are now calculated and displayed in the unified costs table
+        
+        function updateSummaryTables() {
+            updateSummaryTable('fob');
+            updateSummaryTable('cif');
+        }
+        
+        function updateSummaryTable(type) {
+            const tbody = document.getElementById(`${type}-summary-tbody`);
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const baseUOM = type === 'fob' ? calculateFOBUOMPrice(product) : calculateCIFUOMPrice(product);
+                const landedUOM = calculateAverageLandedUOM(product, type);
+                const landedEach = product.pack > 0 ? landedUOM / product.pack : 0;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.description || `Product ${index + 1}`}</td>
+                    <td class="calculated">$${baseUOM.toFixed(2)}</td>
+                    <td class="calculated">$${landedUOM.toFixed(2)}</td>
+                    <td class="calculated">$${landedEach.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateTotals() {
+            let totalContainers = 0;
+            let totalFobValue = 0;
+            let totalCifValue = 0;
+            
+            products.forEach(product => {
+                const productQty = quantities[product.id] || {};
+                Object.values(productQty).forEach(qty => {
+                    totalContainers += qty;
+                });
+                
+                totalFobValue += calculateTotalProductValue(product, 'fob');
+                totalCifValue += calculateTotalProductValue(product, 'cif');
+            });
+            
+            // Update Step 3 totals
+            const totalContainersEl = document.getElementById('total-containers');
+            const totalFobValueEl = document.getElementById('total-fob-value');
+            const totalCifValueEl = document.getElementById('total-cif-value');
+            
+            if (totalContainersEl) totalContainersEl.textContent = totalContainers;
+            if (totalFobValueEl) totalFobValueEl.textContent = `$${totalFobValue.toFixed(0)}`;
+            if (totalCifValueEl) totalCifValueEl.textContent = `$${totalCifValue.toFixed(0)}`;
+            
+            // Update Step 6 totals
+            const finalProductsEl = document.getElementById('final-products');
+            const finalContainersEl = document.getElementById('final-containers');
+            const finalFobTotalEl = document.getElementById('final-fob-total');
+            const finalCifTotalEl = document.getElementById('final-cif-total');
+            
+            if (finalProductsEl) finalProductsEl.textContent = products.length;
+            if (finalContainersEl) finalContainersEl.textContent = totalContainers;
+            if (finalFobTotalEl) finalFobTotalEl.textContent = `$${totalFobValue.toLocaleString()}`;
+            if (finalCifTotalEl) finalCifTotalEl.textContent = `$${totalCifValue.toLocaleString()}`;
+        }
+        
         function debounce(func, wait) {
             let timeout;
             return function executedFunction(...args) {
@@ -1133,328 +1757,181 @@
             };
         }
 
-        function toggleSection(header) {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector('.toggle-icon');
+        // Utility Functions
+        function startNew() {
+            if (!confirm('Start a new quotation? All current data will be lost.')) return;
             
-            content.classList.toggle('collapsed');
-            icon.classList.toggle('collapsed');
-        }
-
-        function updateContainerCapacityTable() {
-            const capacityPercentage = parseFloat(document.getElementById('capacity-percentage').value) || 100;
-            const tbody = document.getElementById('container-capacity-table');
-            
-            tbody.innerHTML = '';
-            
-            CONTAINER_TYPES.forEach(type => {
-                const baseCapacity = CONTAINER_CONSTANTS[type];
-                const actualCapacity = Math.round(baseCapacity * (capacityPercentage / 100));
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${type}' Container</td>
-                    <td class="calculated">${baseCapacity.toLocaleString()}</td>
-                    <td class="calculated">${actualCapacity.toLocaleString()}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function addProduct() {
-            if (products.length >= MAX_PRODUCTS) {
-                alert(`Maximum ${MAX_PRODUCTS} products allowed`);
-                return;
-            }
-
-            const productId = 'product_' + Date.now();
-            const product = {
-                id: productId,
-                description: '',
-                brand: '',
-                pack: 1,
-                size: '',
-                cbf: 0,
-                weight: 0,
-                fobInitialCost: 0,
-                cifInitialCost: 0
+            // Reset all data
+            products = [];
+            quantities = {};
+            addedCosts = {
+                fob: {
+                    '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
+                },
+                cif: {
+                    '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                    '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
+                }
             };
-
-            products.push(product);
-            updateProductTables();
-            updateProductCount();
-            calculateAll();
-        }
-
-        function removeProduct(productId) {
-            products = products.filter(p => p.id !== productId);
-            updateProductTables();
-            updateProductCount();
-            calculateAll();
-        }
-
-        function duplicateProduct() {
-            if (products.length === 0) {
-                alert('No products to duplicate');
-                return;
-            }
+            hsData = { code: '', percent: 0 };
             
-            if (products.length >= MAX_PRODUCTS) {
-                alert(`Maximum ${MAX_PRODUCTS} products allowed`);
-                return;
-            }
-
-            const lastProduct = products[products.length - 1];
-            const duplicatedProduct = {
-                ...lastProduct,
-                id: 'product_' + Date.now(),
-                description: lastProduct.description + ' (Copy)'
-            };
-
-            products.push(duplicatedProduct);
-            updateProductTables();
-            updateProductCount();
-        }
-
-        function clearAllProducts() {
-            if (confirm('Are you sure you want to clear all products?')) {
-                products = [];
-                updateProductTables();
-                updateProductCount();
-                calculateAll();
-            }
-        }
-
-        function updateProductCount() {
-            document.getElementById('product-count').textContent = products.length;
-        }
-
-        function updateProductTables() {
-            updateMainProductTable();
-            updateQuotationTables();
-            updateLandedCostsTables();
-            updateCostsTables();
-            updateAddedCostsTables();
-        }
-
-        function updateMainProductTable() {
-            const tbody = document.getElementById('product-table-body');
-            tbody.innerHTML = '';
-
-            products.forEach((product, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><input type="text" value="${product.description}" onchange="updateProduct('${product.id}', 'description', this.value)"></td>
-                    <td><input type="text" value="${product.brand}" onchange="updateProduct('${product.id}', 'brand', this.value)"></td>
-                    <td><input type="number" value="${product.pack}" min="1" onchange="updateProduct('${product.id}', 'pack', parseFloat(this.value) || 1)"></td>
-                    <td><input type="text" value="${product.size}" onchange="updateProduct('${product.id}', 'size', this.value)"></td>
-                    <td class="calculated fob">$${calculateFOBUOMPrice(product).toFixed(2)}</td>
-                    <td class="calculated fob">$${calculateFOBEachPrice(product).toFixed(2)}</td>
-                    <td class="calculated cif">$${calculateCIFUOMPrice(product).toFixed(2)}</td>
-                    <td class="calculated cif">$${calculateCIFEachPrice(product).toFixed(2)}</td>
-                    <td><input type="number" value="${product.cbf}" min="0" step="0.01" onchange="updateProduct('${product.id}', 'cbf', parseFloat(this.value) || 0)"></td>
-                    <td><input type="number" value="${product.weight}" min="0" step="0.01" onchange="updateProduct('${product.id}', 'weight', parseFloat(this.value) || 0)"></td>
-                    <td><button class="btn btn--danger btn--sm" onclick="removeProduct('${product.id}')">🗑️</button></td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateQuotationTables() {
-            updateQuotationTable('fob');
-            updateQuotationTable('cif');
-        }
-
-        function updateQuotationTable(type) {
-            const tbody = document.getElementById(`${type}-quotation-table-body`);
-            tbody.innerHTML = '';
-
-            products.forEach((product, index) => {
-                const row = document.createElement('tr');
-                let html = `<td>${product.description || `Product ${index + 1}`}</td>`;
-                
-                // Add container quantity and cost columns
-                CONTAINER_TYPES.forEach(containerType => {
-                    const qty = quotationData[product.id] && quotationData[product.id][containerType] ? quotationData[product.id][containerType][`${type}Qty`] || 0 : 0;
-                    const cost = calculateContainerCost(product, containerType, qty, type);
-                    
-                    html += `
-                        <td><input type="number" value="${qty}" min="0" step="1" onchange="updateQuotationData('${product.id}', '${containerType}', '${type}Qty', parseInt(this.value) || 0)"></td>
-                        <td class="calculated">$${cost.toFixed(2)}</td>
-                    `;
-                });
-                
-                // HS Code percentage and charge
-                const hsCodePercent = quotationData[product.id] ? quotationData[product.id][`${type}HsCodePercent`] || 0 : 0;
-                const hsCodeCharge = calculateHSCodeCharge(product, type);
-                
-                html += `
-                    <td><input type="number" value="${hsCodePercent}" min="0" max="100" step="0.01" onchange="updateQuotationData('${product.id}', '${type}HsCodePercent', 'value', parseFloat(this.value) || 0)"></td>
-                    <td class="calculated">$${hsCodeCharge.toFixed(2)}</td>
-                `;
-                
-                row.innerHTML = html;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateLandedCostsTables() {
-            updateLandedCostsTable('fob');
-            updateLandedCostsTable('cif');
-        }
-
-        function updateLandedCostsTable(type) {
-            const tbody = document.getElementById(`landed-costs-${type}-body`);
-            tbody.innerHTML = '';
-
-            products.forEach((product, index) => {
-                const row = document.createElement('tr');
-                let html = `<td>${product.description || `Product ${index + 1}`}</td>`;
-                
-                CONTAINER_TYPES.forEach(containerType => {
-                    const landedUOM = calculateLandedUOM(product, containerType, type);
-                    const landedEach = calculateLandedEach(product, containerType, type);
-                    
-                    html += `
-                        <td class="calculated">$${landedUOM.toFixed(2)}</td>
-                        <td class="calculated">$${landedEach.toFixed(2)}</td>
-                    `;
-                });
-                
-                row.innerHTML = html;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateCostsTables() {
-            updateCostsTable('fob');
-            updateCostsTable('cif');
-        }
-
-        function updateCostsTable(type) {
-            const tbody = document.getElementById(`${type}-costs-body`);
-            tbody.innerHTML = '';
-
-            // Always show 8 product slots
-            for (let i = 0; i < MAX_PRODUCTS; i++) {
-                const product = products[i];
-                const row = document.createElement('tr');
-                
-                if (product) {
-                    const initialCost = type === 'fob' ? product.fobInitialCost : product.cifInitialCost;
-                    const costWithOSO = calculateCostWithOSO(initialCost);
-                    
-                    row.innerHTML = `
-                        <td>Product ${i + 1}</td>
-                        <td><input type="number" value="${initialCost}" min="0" step="0.01" onchange="updateProduct('${product.id}', '${type}InitialCost', parseFloat(this.value) || 0)" placeholder="Enter initial cost"></td>
-                        <td class="calculated">$${costWithOSO.toFixed(2)}</td>
-                    `;
+            // Clear HS Code inputs
+            document.getElementById('hs-code').value = '';
+            document.getElementById('hs-percentage').value = '0';
+            
+            // Clear all form inputs
+            document.querySelectorAll('input, select').forEach(input => {
+                if (input.type === 'number') {
+                    if (input.id === 'capacity-percentage') {
+                        input.value = '100';
+                    } else if (input.id === 'oso-percentage') {
+                        input.value = '15';
+                    } else {
+                        input.value = '0';
+                    }
                 } else {
-                    row.innerHTML = `
-                        <td>Product ${i + 1}</td>
-                        <td><input type="number" value="0" min="0" step="0.01" onchange="addProductAndUpdateCost(${i}, '${type}InitialCost', parseFloat(this.value) || 0)" placeholder="Enter initial cost"></td>
-                        <td class="calculated">$0.00</td>
-                    `;
+                    input.value = '';
                 }
-                tbody.appendChild(row);
-            }
-        }
-
-        function updateProduct(productId, field, value) {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                product[field] = value;
-                calculateAll();
-                updateProductTables();
-            }
-        }
-
-        function updateQuotationData(productId, containerTypeOrField, field, value) {
-            if (!quotationData[productId]) {
-                quotationData[productId] = {};
-            }
+            });
             
-            if (field === 'value') {
-                // This is for HS code percentage
-                quotationData[productId][containerTypeOrField] = value;
-            } else {
-                // This is for quantities
-                if (!quotationData[productId][containerTypeOrField]) {
-                    quotationData[productId][containerTypeOrField] = {};
-                }
-                quotationData[productId][containerTypeOrField][field] = value;
-            }
-            
-            calculateAll();
-            updateProductTables();
+            // Reset to step 1
+            currentStep = 1;
+            updateStepDisplay();
+            updateAllTables();
+            updateValidationStatus('Ready to start');
+        }
+        
+        function exportResults() {
+            window.print();
         }
 
-        // Calculation functions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Core Calculation Functions
+        function calculateCostWithOSO(initialCost) {
+            const osoPercent = parseFloat(document.getElementById('oso-percentage').value) || 0;
+            if (initialCost <= 0) return 0;
+            if (osoPercent >= 100) return 0;
+            return initialCost / (1 - (osoPercent / 100));
+        }
+        
         function calculateFOBUOMPrice(product) {
             return calculateCostWithOSO(product.fobInitialCost);
         }
-
+        
         function calculateFOBEachPrice(product) {
             const uomPrice = calculateFOBUOMPrice(product);
             return product.pack > 0 ? uomPrice / product.pack : 0;
         }
-
+        
         function calculateCIFUOMPrice(product) {
             return calculateCostWithOSO(product.cifInitialCost);
         }
-
+        
         function calculateCIFEachPrice(product) {
             const uomPrice = calculateCIFUOMPrice(product);
             return product.pack > 0 ? uomPrice / product.pack : 0;
         }
 
-        function calculateCostWithOSO(initialCost) {
-            const osoPercent = parseFloat(document.getElementById('oso-percentage').value) || 0;
-            if (initialCost <= 0) return 0;
-            if (osoPercent >= 100) {
-                document.getElementById('oso-percentage-error').textContent = 'OSO % cannot be 100% or higher';
-                return 0;
-            }
-            document.getElementById('oso-percentage-error').textContent = '';
-            return initialCost / (1 - (osoPercent / 100));
-        }
-        
-        function addProductAndUpdateCost(index, field, value) {
-            if (value > 0) {
-                // Create the product if it doesn't exist
-                while (products.length <= index) {
-                    addProduct();
-                }
-                
-                // Update the cost
-                const product = products[index];
-                if (product) {
-                    updateProduct(product.id, field, value);
-                }
-            }
-        }
-
         function calculateContainerCost(product, containerType, quantity, type = 'fob') {
             const uomPrice = type === 'fob' ? calculateFOBUOMPrice(product) : calculateCIFUOMPrice(product);
-            return quantity * uomPrice;
+            const capacityPercent = parseFloat(document.getElementById('capacity-percentage').value) || 100;
+            const actualCapacity = CONTAINER_CONSTANTS[containerType] * (capacityPercent / 100);
+            return quantity * uomPrice * actualCapacity;
         }
-
-        function calculateHSCodeCharge(product, type = 'fob') {
-            if (!quotationData[product.id]) return 0;
-            
-            const hsCodePercent = quotationData[product.id][`${type}HsCodePercent`] || 0;
-            let totalCost = 0;
+        
+        function calculateTotalProductValue(product, type) {
+            const productQty = quantities[product.id] || {};
+            let total = 0;
             
             CONTAINER_TYPES.forEach(containerType => {
-                if (quotationData[product.id][containerType]) {
-                    const qty = quotationData[product.id][containerType][`${type}Qty`] || 0;
-                    const containerCost = calculateContainerCost(product, containerType, qty, type);
-                    totalCost += containerCost;
+                const qty = productQty[containerType] || 0;
+                total += calculateContainerCost(product, containerType, qty, type);
+            });
+            
+            return total;
+        }
+        
+        function calculateProductHSCharge(product, type) {
+            const totalValue = calculateTotalProductValue(product, type);
+            return totalValue * (hsData.percent / 100);
+        }
+        
+        function calculateTotalHSChargeForContainerType(containerType, type) {
+            return addedCosts[type][containerType].hsCode;
+        }
+        
+
+        
+        function calculateAddedCostsPerUOM(containerType, type) {
+            const costs = addedCosts[type][containerType];
+            const totalCosts = costs.hsCode + costs.tariffs + costs.inland + costs.others;
+            const totalQuantity = calculateTotalQuantityInContainer(containerType);
+            return totalQuantity > 0 ? totalCosts / totalQuantity : 0;
+        }
+        
+        function calculateTotalQuantityInContainer(containerType) {
+            let total = 0;
+            products.forEach(product => {
+                const productQty = quantities[product.id] || {};
+                total += productQty[containerType] || 0;
+            });
+            return total;
+        }
+        
+        function calculateAverageLandedUOM(product, type) {
+            let totalLanded = 0;
+            let totalQuantity = 0;
+            
+            CONTAINER_TYPES.forEach(containerType => {
+                const qty = quantities[product.id] ? quantities[product.id][containerType] || 0 : 0;
+                if (qty > 0) {
+                    totalLanded += calculateLandedUOM(product, containerType, type) * qty;
+                    totalQuantity += qty;
                 }
             });
             
-            return totalCost * (hsCodePercent / 100);
+            return totalQuantity > 0 ? totalLanded / totalQuantity : calculateLandedUOM(product, '20', type);
         }
+
+
 
         function calculateLandedUOM(product, containerType, type) {
             const basePrice = type === 'fob' ? calculateFOBUOMPrice(product) : calculateCIFUOMPrice(product);
@@ -1462,183 +1939,33 @@
             return basePrice + addedCostsPerUOM;
         }
 
-        function calculateAddedCostsPerUOM(containerType, type) {
-            const costs = addedCosts[type][containerType];
-            const totalAddedCosts = costs.hsCode + costs.tariffs + costs.inland + costs.others;
-            const totalQuantityInContainer = calculateTotalQuantityInContainer(containerType);
-            return totalQuantityInContainer > 0 ? totalAddedCosts / totalQuantityInContainer : 0;
-        }
 
-        function calculateLandedEach(product, containerType, type) {
-            const landedUOM = calculateLandedUOM(product, containerType, type);
-            return product.pack > 0 ? landedUOM / product.pack : 0;
-        }
+
+
 
         function calculateAll() {
-            updateProductTables();
-            updateSummaryDashboard();
+            // All calculations are done in real-time within the update functions
         }
 
-        function updateSummaryDashboard() {
-            const dashboard = document.getElementById('summary-dashboard');
-            
-            // Calculate totals
-            let totalProducts = products.length;
-            let totalFOBContainers = 0;
-            let totalCIFContainers = 0;
-            let totalWeight = 0;
-            let totalFOBValue = 0;
-            let totalCIFValue = 0;
-            let totalFOBQuotationValue = 0;
-            let totalCIFQuotationValue = 0;
-            
-            products.forEach(product => {
-                totalWeight += product.weight;
-                totalFOBValue += calculateFOBUOMPrice(product);
-                totalCIFValue += calculateCIFUOMPrice(product);
-                
-                if (quotationData[product.id]) {
-                    CONTAINER_TYPES.forEach(containerType => {
-                        if (quotationData[product.id][containerType]) {
-                            const fobQty = quotationData[product.id][containerType].fobQty || 0;
-                            const cifQty = quotationData[product.id][containerType].cifQty || 0;
-                            
-                            totalFOBContainers += fobQty;
-                            totalCIFContainers += cifQty;
-                            
-                            totalFOBQuotationValue += calculateContainerCost(product, containerType, fobQty, 'fob');
-                            totalCIFQuotationValue += calculateContainerCost(product, containerType, cifQty, 'cif');
-                        }
-                    });
-                }
-            });
-            
-            const osoPercent = parseFloat(document.getElementById('oso-percentage').value) || 0;
-            const profitMargin = osoPercent;
-            
-            dashboard.innerHTML = `
-                <div class="summary-card">
-                    <div class="summary-value">${totalProducts}</div>
-                    <div class="summary-label">Total Products</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">${totalFOBContainers + totalCIFContainers}</div>
-                    <div class="summary-label">Total Containers</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">${totalWeight.toLocaleString()}</div>
-                    <div class="summary-label">Total Weight (lbs)</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">$${totalFOBQuotationValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                    <div class="summary-label">FOB Quotation Value</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">$${totalCIFQuotationValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                    <div class="summary-label">CIF Quotation Value</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">${profitMargin.toFixed(1)}%</div>
-                    <div class="summary-label">Profit Margin (OSO %)</div>
-                </div>
-            `;
-        }
 
-        function updateProgressBar() {
-            let totalFields = 0;
-            let filledFields = 0;
-            
-            // Check required fields
-            const requiredFields = [
-                'customer-name',
-                'oso-percentage'
-            ];
-            
-            requiredFields.forEach(fieldId => {
-                totalFields++;
-                const field = document.getElementById(fieldId);
-                if (field && field.value.trim()) {
-                    filledFields++;
-                }
-            });
-            
-            // Check if at least one product exists
-            totalFields++;
-            if (products.length > 0) {
-                filledFields++;
-            }
-            
-            // Check if products have initial costs
-            products.forEach(product => {
-                totalFields += 2; // FOB and CIF initial costs
-                if (product.fobInitialCost > 0) filledFields++;
-                if (product.cifInitialCost > 0) filledFields++;
-            });
-            
-            const progress = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
-            
-            document.getElementById('progress-fill').style.width = `${progress}%`;
-            document.getElementById('progress-text').textContent = `${progress}%`;
-        }
 
-        // Template and storage functions (in-memory only)
-        let savedTemplates = [];
+
+
+        // Auto-save and session management (in-memory only for sandbox environment)
         let autoSaveData = null;
-
-        function saveTemplate() {
-            const templateName = prompt('Enter template name:');
-            if (!templateName) return;
-            
-            const template = {
-                name: templateName,
-                timestamp: new Date().toISOString(),
-                data: {
-                    products: products,
-                    quotationData: quotationData,
-                    addedCosts: addedCosts,
-                    formData: getFormData()
-                }
+        
+        function autoSave() {
+            autoSaveData = {
+                currentStep: currentStep,
+                products: products,
+                quantities: quantities,
+                addedCosts: addedCosts,
+                hsData: hsData,
+                formData: getFormData(),
+                timestamp: new Date().toISOString()
             };
-            
-            savedTemplates.push(template);
-            alert('Template saved successfully! (Note: Templates are saved for this session only)');
         }
-
-        function loadTemplate() {
-            if (savedTemplates.length === 0) {
-                alert('No templates found for this session');
-                return;
-            }
-            
-            const templateList = savedTemplates.map((t, i) => `${i + 1}. ${t.name} (${new Date(t.timestamp).toLocaleDateString()})`).join('\n');
-            const selection = prompt(`Select template:\n${templateList}\n\nEnter number:`);
-            
-            const index = parseInt(selection) - 1;
-            if (index >= 0 && index < savedTemplates.length) {
-                loadTemplateData(savedTemplates[index].data);
-                alert('Template loaded successfully!');
-            }
-        }
-
-        function loadTemplateData(data) {
-            products = data.products || [];
-            quotationData = data.quotationData || {};
-            addedCosts = data.addedCosts || { fob: {}, cif: {} };
-            
-            if (data.formData) {
-                Object.keys(data.formData).forEach(key => {
-                    const element = document.getElementById(key);
-                    if (element) {
-                        element.value = data.formData[key];
-                    }
-                });
-            }
-            
-            calculateAll();
-            updateProductCount();
-            updateContainerCapacityTable();
-        }
-
+        
         function getFormData() {
             const formData = {};
             const inputs = document.querySelectorAll('input, select');
@@ -1649,147 +1976,9 @@
             });
             return formData;
         }
-
-        function autoSave() {
-            autoSaveData = {
-                products: products,
-                quotationData: quotationData,
-                addedCosts: addedCosts,
-                formData: getFormData(),
-                timestamp: new Date().toISOString()
-            };
-            // Data is auto-saved in memory for this session
-        }
-
-        function loadFromStorage() {
-            // Load from in-memory auto-save if available
-            if (autoSaveData) {
-                try {
-                    loadTemplateData(autoSaveData);
-                } catch (e) {
-                    console.error('Error loading saved data:', e);
-                }
-            }
-        }
-
-        function newQuote() {
-            if (confirm('Start a new quote? All unsaved data will be lost.')) {
-                products = [];
-                quotationData = {};
-                addedCosts = {
-                    fob: {
-                        '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
-                    },
-                    cif: {
-                        '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
-                        '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
-                    }
-                };
-                
-                // Clear all form fields
-                document.querySelectorAll('input, select').forEach(input => {
-                    if (input.type === 'number') {
-                        if (input.id === 'capacity-percentage') {
-                            input.value = '100';
-                        } else if (input.id === 'oso-percentage') {
-                            input.value = '15';
-                        } else {
-                            input.value = '0';
-                        }
-                    } else {
-                        input.value = '';
-                    }
-                });
-                
-                calculateAll();
-                updateProductCount();
-                updateContainerCapacityTable();
-                updateCostsTables(); // Ensure cost tables are updated
-            }
-        }
-
-        function exportToPDF() {
-            window.print();
-        }
         
-        function runTestCases() {
-            if (!confirm('This will load test data and validate calculations. Continue?')) {
-                return;
-            }
-            
-            // Clear current data
-            newQuote();
-            
-            // Set OSO percentage to 15%
-            document.getElementById('oso-percentage').value = '15';
-            document.getElementById('customer-name').value = 'Test Customer';
-            
-            // Add a test product
-            addProduct();
-            
-            // Set test values
-            if (products.length > 0) {
-                const product = products[0];
-                updateProduct(product.id, 'description', 'Test Product 1');
-                updateProduct(product.id, 'pack', 12);
-                updateProduct(product.id, 'fobInitialCost', 10);
-                updateProduct(product.id, 'cifInitialCost', 12);
-                
-                // Force recalculation
-                calculateAll();
-                
-                // Test calculations
-                setTimeout(() => {
-                    const osoPercent = 15;
-                    const fobInitial = 10;
-                    const pack = 12;
-                    
-                    const expectedFOBWithOSO = fobInitial / (1 - (osoPercent / 100)); // Should be 11.76
-                    const expectedFOBEach = expectedFOBWithOSO / pack; // Should be 0.98
-                    
-                    const actualFOBWithOSO = calculateFOBUOMPrice(product);
-                    const actualFOBEach = calculateFOBEachPrice(product);
-                    
-                    let testResults = 'TEST RESULTS:\n\n';
-                    testResults += `Test 1 - OSO Calculation:\n`;
-                    testResults += `Expected FOB with OSO: $${expectedFOBWithOSO.toFixed(2)}\n`;
-                    testResults += `Actual FOB with OSO: $${actualFOBWithOSO.toFixed(2)}\n`;
-                    testResults += `Result: ${Math.abs(expectedFOBWithOSO - actualFOBWithOSO) < 0.01 ? 'PASS ✅' : 'FAIL ❌'}\n\n`;
-                    
-                    testResults += `Test 2 - Pack Division:\n`;
-                    testResults += `Expected FOB Each: $${expectedFOBEach.toFixed(2)}\n`;
-                    testResults += `Actual FOB Each: $${actualFOBEach.toFixed(2)}\n`;
-                    testResults += `Result: ${Math.abs(expectedFOBEach - actualFOBEach) < 0.01 ? 'PASS ✅' : 'FAIL ❌'}\n\n`;
-                    
-                    // Test container cost calculation
-                    if (!quotationData[product.id]) quotationData[product.id] = {};
-                    if (!quotationData[product.id]['20']) quotationData[product.id]['20'] = {};
-                    quotationData[product.id]['20']['fobQty'] = 2;
-                    
-                    calculateAll();
-                    
-                    const expectedContainerCost = 2 * expectedFOBWithOSO; // Should be 23.52
-                    const actualContainerCost = calculateContainerCost(product, '20', 2, 'fob');
-                    
-                    testResults += `Test 3 - Container Cost:\n`;
-                    testResults += `Expected Container Cost: $${expectedContainerCost.toFixed(2)}\n`;
-                    testResults += `Actual Container Cost: $${actualContainerCost.toFixed(2)}\n`;
-                    testResults += `Result: ${Math.abs(expectedContainerCost - actualContainerCost) < 0.01 ? 'PASS ✅' : 'FAIL ❌'}\n\n`;
-                    
-                    alert(testResults);
-                }, 500);
-            }
-        }
-
-        // Auto-save every 2 seconds
-        setInterval(autoSave, 2000);
+        // Auto-save every 5 seconds
+        setInterval(autoSave, 5000);
     </script>
 </body>
 </html>
