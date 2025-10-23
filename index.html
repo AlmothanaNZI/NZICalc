@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping &amp; Logistics Cost Calculator</title>
+    <style>
+        :root {
+            /* Primitive Color Tokens */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+
+            /* RGB versions for opacity control */
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-red-400-rgb: 255, 84, 89;
+            --color-orange-500-rgb: 168, 75, 47;
+            --color-orange-400-rgb: 230, 129, 97;
+
+            /* Background color tokens (Light Mode) */
+            --color-bg-1: rgba(59, 130, 246, 0.08);
+            --color-bg-2: rgba(245, 158, 11, 0.08);
+            --color-bg-3: rgba(34, 197, 94, 0.08);
+            --color-bg-4: rgba(239, 68, 68, 0.08);
+            --color-bg-5: rgba(147, 51, 234, 0.08);
+            --color-bg-6: rgba(249, 115, 22, 0.08);
+            --color-bg-7: rgba(236, 72, 153, 0.08);
+            --color-bg-8: rgba(6, 182, 212, 0.08);
+
+            /* Semantic Color Tokens (Light Mode) */
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-error: var(--color-red-500);
+            --color-success: var(--color-teal-500);
+            --color-warning: var(--color-orange-500);
+            --color-info: var(--color-slate-500);
+            --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+            --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+
+            /* Typography */
+            --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --font-size-4xl: 30px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --font-weight-bold: 600;
+            --line-height-tight: 1.2;
+            --line-height-normal: 1.5;
+            --letter-spacing-tight: -0.01em;
+
+            /* Spacing */
+            --space-0: 0;
+            --space-1: 1px;
+            --space-2: 2px;
+            --space-4: 4px;
+            --space-6: 6px;
+            --space-8: 8px;
+            --space-10: 10px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+
+            /* Animation */
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+            /* Custom colors for FOB/CIF */
+            --color-fob: #2563eb;
+            --color-fob-light: rgba(37, 99, 235, 0.1);
+            --color-fob-border: rgba(37, 99, 235, 0.3);
+            --color-cif: #16a34a;
+            --color-cif-light: rgba(22, 163, 74, 0.1);
+            --color-cif-border: rgba(22, 163, 74, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            line-height: var(--line-height-normal);
+            color: var(--color-text);
+            background-color: var(--color-background);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-16);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: var(--space-32);
+            padding: var(--space-24);
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header h1 {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-8);
+        }
+
+        .header p {
+            font-size: var(--font-size-lg);
+            color: var(--color-text-secondary);
+        }
+
+        .section {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-24);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: var(--space-16) var(--space-24);
+            background: var(--color-secondary);
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .section-header.fob {
+            background: var(--color-fob-light);
+            border-left: 4px solid var(--color-fob);
+        }
+
+        .section-header.cif {
+            background: var(--color-cif-light);
+            border-left: 4px solid var(--color-cif);
+        }
+
+        .section-content {
+            padding: var(--space-24);
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        .toggle-icon {
+            transition: transform var(--duration-fast) var(--ease-standard);
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-16);
+            margin-bottom: var(--space-24);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        .form-label {
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+            color: var(--color-text);
+            position: relative;
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--color-error);
+            margin-left: var(--space-4);
+        }
+
+        .form-control {
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            background: var(--color-white);
+            transition: border-color var(--duration-fast) var(--ease-standard);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-focus-ring);
+        }
+
+        .form-control.error {
+            border-color: var(--color-error);
+        }
+
+        .error-message {
+            color: var(--color-error);
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-4);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8) var(--space-16);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            border: none;
+            text-decoration: none;
+            gap: var(--space-8);
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+        }
+
+        .btn--primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn--secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+        }
+
+        .btn--secondary:hover {
+            background: var(--color-secondary-hover);
+        }
+
+        .btn--sm {
+            padding: var(--space-6) var(--space-12);
+            font-size: var(--font-size-sm);
+        }
+
+        .btn--danger {
+            background: var(--color-error);
+            color: var(--color-white);
+        }
+
+        .btn--danger:hover {
+            background: var(--color-red-400);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: var(--space-16) 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: var(--space-8) var(--space-12);
+            text-align: left;
+            border: 1px solid var(--color-border);
+        }
+
+        .data-table th {
+            background: var(--color-secondary);
+            font-weight: var(--font-weight-semibold);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th.fob {
+            background: var(--color-fob-light);
+            color: var(--color-fob);
+        }
+
+        .data-table th.cif {
+            background: var(--color-cif-light);
+            color: var(--color-cif);
+        }
+
+        .data-table input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: var(--font-size-sm);
+            padding: var(--space-4);
+        }
+
+        .data-table input:focus {
+            outline: 1px solid var(--color-primary);
+            border-radius: var(--radius-sm);
+        }
+
+        .data-table .calculated {
+            background: var(--color-gray-200);
+            color: var(--color-text-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-16);
+            flex-wrap: wrap;
+            gap: var(--space-12);
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: var(--space-8);
+            align-items: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-secondary);
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-16);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: var(--radius-full);
+            transition: width var(--duration-normal) var(--ease-standard);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-16);
+            margin: var(--space-24) 0;
+        }
+
+        .summary-card {
+            background: var(--color-surface);
+            padding: var(--space-16);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin-bottom: var(--space-8);
+        }
+
+        .summary-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: var(--color-text-secondary);
+            margin-left: var(--space-4);
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-charcoal-800);
+            color: var(--color-white);
+            padding: var(--space-8) var(--space-12);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-sm);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--duration-fast) var(--ease-standard);
+            z-index: 1000;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .alert {
+            padding: var(--space-12) var(--space-16);
+            border-radius: var(--radius-base);
+            margin-bottom: var(--space-16);
+        }
+
+        .alert--warning {
+            background: rgba(var(--color-warning-rgb), 0.1);
+            border: 1px solid var(--color-warning);
+            color: var(--color-warning);
+        }
+
+        .alert--success {
+            background: rgba(var(--color-success-rgb), 0.1);
+            border: 1px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-8);
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-group {
+                justify-content: center;
+            }
+        }
+
+        @media print {
+            .toolbar,
+            .btn,
+            .section-header {
+                display: none !important;
+            }
+
+            .section-content {
+                display: block !important;
+            }
+
+            body {
+                background: white;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-16 {
+            margin-bottom: var(--space-16);
+        }
+
+        .mb-24 {
+            margin-bottom: var(--space-24);
+        }
+
+        .mt-16 {
+            margin-top: var(--space-16);
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .gap-8 {
+            gap: var(--space-8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Shipping &amp; Logistics Cost Calculator</h1>
+            <p>Professional international shipping cost calculation with FOB/CIF pricing terms</p>
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button class="btn btn--primary" onclick="exportToPDF()">📄 Export PDF</button>
+                <button class="btn btn--secondary" onclick="saveTemplate()">💾 Save Template</button>
+                <button class="btn btn--secondary" onclick="loadTemplate()">📂 Load Template</button>
+                <button class="btn btn--secondary" onclick="newQuote()">🆕 New Quote</button>
+                <button class="btn btn--secondary" onclick="runTestCases()">🧪 Run Test</button>
+            </div>
+            <div class="toolbar-group">
+                <span>Progress: <span id="progress-text">0%</span></span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+
+        <!-- Section 1: General Information -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>1. General Information</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <!-- Customer Information -->
+                <h3 class="mb-16">Customer Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Customer Name
+                            <span class="tooltip" data-tooltip="Enter the name of the customer requesting the quotation">ℹ️</span>
+                        </label>
+                        <input type="text" class="form-control" id="customer-name" required>
+                        <div class="error-message" id="customer-name-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Customer Country
+                            <span class="tooltip" data-tooltip="Destination country for the shipment">ℹ️</span>
+                        </label>
+                        <input type="text" class="form-control" id="customer-country">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Shipping Term
+                            <span class="tooltip" data-tooltip="Select the international trade term (FOB, CIF, EXW, DDP)">ℹ️</span>
+                        </label>
+                        <select class="form-control" id="shipping-term">
+                            <option value="">Select Term</option>
+                            <option value="FOB">FOB - Free on Board</option>
+                            <option value="CIF">CIF - Cost, Insurance, Freight</option>
+                            <option value="EXW">EXW - Ex Works</option>
+                            <option value="DDP">DDP - Delivered Duty Paid</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expected Month
+                            <span class="tooltip" data-tooltip="Expected shipment month">ℹ️</span>
+                        </label>
+                        <input type="month" class="form-control" id="expected-month">
+                    </div>
+                </div>
+
+                <!-- Source Information -->
+                <h3 class="mb-16">Source Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Vendor Name
+                            <span class="tooltip" data-tooltip="Name of the supplier/vendor">ℹ️</span>
+                        </label>
+                        <input type="text" class="form-control" id="vendor-name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Source Country
+                            <span class="tooltip" data-tooltip="Country of origin for the goods">ℹ️</span>
+                        </label>
+                        <input type="text" class="form-control" id="source-country">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Transit Time (Days)
+                            <span class="tooltip" data-tooltip="Shipping time in days from port to port">ℹ️</span>
+                        </label>
+                        <input type="number" class="form-control" id="transit-time" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Production Time (Days)
+                            <span class="tooltip" data-tooltip="Manufacturing lead time in days">ℹ️</span>
+                        </label>
+                        <input type="number" class="form-control" id="production-time" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Payment Terms
+                            <span class="tooltip" data-tooltip="Payment terms and conditions">ℹ️</span>
+                        </label>
+                        <input type="text" class="form-control" id="payment-terms">
+                    </div>
+                </div>
+
+                <!-- Container Capacity -->
+                <h3 class="mb-16">Container Capacity</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Container Capacity Percentage
+                            <span class="tooltip" data-tooltip="How much of the container capacity will be utilized (1-100%)">ℹ️</span>
+                        </label>
+                        <input type="number" class="form-control" id="capacity-percentage" value="100" min="1" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">All Containers Weight (lbs)
+                            <span class="tooltip" data-tooltip="Total weight of all containers in pounds">ℹ️</span>
+                        </label>
+                        <input type="number" class="form-control" id="containers-weight" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Container Capacity Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Container Type</th>
+                                <th>Base Capacity</th>
+                                <th>Actual Capacity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="container-capacity-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Added Costs Section -->
+                <h3 class="mb-16">Added Costs per Container</h3>
+                <h4 class="mb-16" style="color: var(--color-fob)">FOB Added Costs</h4>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Container Type</th>
+                                <th>HS CODE FOB</th>
+                                <th>TARIFFS FOB</th>
+                                <th>INLAND FOB</th>
+                                <th>OTHERS FOB</th>
+                                <th>Total Added Costs</th>
+                                <th>Total Added Costs per UOM</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fob-added-costs-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="mb-16 mt-16" style="color: var(--color-cif)">CIF Added Costs</h4>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Container Type</th>
+                                <th>HS CODE CIF</th>
+                                <th>TARIFFS CIF</th>
+                                <th>INLAND CIF</th>
+                                <th>OTHERS CIF</th>
+                                <th>Total Added Costs</th>
+                                <th>Total Added Costs per UOM</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cif-added-costs-table">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Enter Costs (MUST COME BEFORE SECTION 2) -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>4. Enter Costs (Cost Input &amp; OSO Markup)</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="alert alert--warning">
+                    <strong>⚠️ STEP 1:</strong> Enter your base costs here first. These costs will automatically flow to Section 2 (Product Information) with OSO markup applied.
+                    <br><strong>Formula:</strong> Cost with OSO = Initial Cost ÷ (1 - OSO%/100)
+                    <br><strong>Example:</strong> $10 initial cost with 15% OSO = $10 ÷ (1 - 0.15) = $11.76
+                </div>
+                
+                <div class="form-grid mb-24">
+                    <div class="form-group">
+                        <label class="form-label required">OSO % (Overhead, Sourcing, Operations)
+                            <span class="tooltip" data-tooltip="Markup percentage for overhead, sourcing, and operations costs. Cannot be 100% or higher.">ℹ️</span>
+                        </label>
+                        <input type="number" class="form-control" id="oso-percentage" value="15" min="0" max="99.99" step="0.01" required>
+                        <div class="error-message" id="oso-percentage-error"></div>
+                    </div>
+                </div>
+
+                <h3 class="mb-16" style="color: var(--color-fob)">FOB Costs (Enter Base Costs)</h3>
+                <div class="table-container">
+                    <table class="data-table" id="fob-costs-table">
+                        <thead>
+                            <tr>
+                                <th>Product #</th>
+                                <th style="background: var(--color-white); color: var(--color-text)">Enter FOB Initial Cost ($)</th>
+                                <th style="background: var(--color-fob-light); color: var(--color-fob)">Cost with OSO % ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fob-costs-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="mb-16 mt-16" style="color: var(--color-cif)">CIF Costs (Enter Base Costs)</h3>
+                <div class="table-container">
+                    <table class="data-table" id="cif-costs-table">
+                        <thead>
+                            <tr>
+                                <th>Product #</th>
+                                <th style="background: var(--color-white); color: var(--color-text)">Enter CIF Initial Cost ($)</th>
+                                <th style="background: var(--color-cif-light); color: var(--color-cif)">Cost with OSO % ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cif-costs-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Product Information -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>2. Product Information</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="alert alert--success">
+                    <strong>✅ STEP 2:</strong> Prices shown here are automatically calculated from Section 4 (Enter Costs) with OSO markup applied. These are READ-ONLY displays.
+                    <br><strong>Next:</strong> Enter Pack sizes and product details, then proceed to Section 2B for quantities.
+                </div>
+                
+                <div class="toolbar mb-16">
+                    <div class="toolbar-group">
+                        <button class="btn btn--primary btn--sm" onclick="addProduct()">➕ Add Product</button>
+                        <button class="btn btn--secondary btn--sm" onclick="duplicateProduct()">📋 Duplicate</button>
+                        <button class="btn btn--danger btn--sm" onclick="clearAllProducts()">🗑️ Clear All</button>
+                    </div>
+                    <div class="toolbar-group">
+                        <span>Products: <span id="product-count">0</span>/8</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="product-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">Product Description</th>
+                                <th rowspan="2">Brand</th>
+                                <th rowspan="2">Pack</th>
+                                <th rowspan="2">Size</th>
+                                <th colspan="2" class="fob">FOB Pricing</th>
+                                <th colspan="2" class="cif">CIF Pricing</th>
+                                <th rowspan="2">CBF</th>
+                                <th rowspan="2">WGT/LBS</th>
+                                <th rowspan="2">Actions</th>
+                            </tr>
+                            <tr>
+                                <th class="fob">UOM Price</th>
+                                <th class="fob">Each Price</th>
+                                <th class="cif">UOM Price</th>
+                                <th class="cif">Each Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2B: FOB Quotation (Total QTY & Container Costs) -->
+        <div class="section">
+            <div class="section-header fob" onclick="toggleSection(this)">
+                <h2>2B. FOB Quotation (Container Quantities &amp; Costs)</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="table-container">
+                    <table class="data-table" id="fob-quotation-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>20' Qty</th>
+                                <th>20' Cost</th>
+                                <th>40' Qty</th>
+                                <th>40' Cost</th>
+                                <th>40' HC Qty</th>
+                                <th>40' HC Cost</th>
+                                <th>45' HC Qty</th>
+                                <th>45' HC Cost</th>
+                                <th>53' Qty</th>
+                                <th>53' Cost</th>
+                                <th>HS Code %</th>
+                                <th>HS Code Charge</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fob-quotation-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2C: CIF Quotation (Total QTY & Container Costs) -->
+        <div class="section">
+            <div class="section-header cif" onclick="toggleSection(this)">
+                <h2>2C. CIF Quotation (Container Quantities &amp; Costs)</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="table-container">
+                    <table class="data-table" id="cif-quotation-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>20' Qty</th>
+                                <th>20' Cost</th>
+                                <th>40' Qty</th>
+                                <th>40' Cost</th>
+                                <th>40' HC Qty</th>
+                                <th>40' HC Cost</th>
+                                <th>45' HC Qty</th>
+                                <th>45' HC Cost</th>
+                                <th>53' Qty</th>
+                                <th>53' Cost</th>
+                                <th>HS Code %</th>
+                                <th>HS Code Charge</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cif-quotation-table-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Landed Costs -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>3. Landed Costs (UOM / EACH)</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <h3 class="mb-16" style="color: var(--color-fob)">FOB Landed Costs</h3>
+                <div class="table-container">
+                    <table class="data-table" id="landed-costs-fob-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>20' UOM</th>
+                                <th>20' Each</th>
+                                <th>40' UOM</th>
+                                <th>40' Each</th>
+                                <th>40' HC UOM</th>
+                                <th>40' HC Each</th>
+                                <th>45' HC UOM</th>
+                                <th>45' HC Each</th>
+                                <th>53' UOM</th>
+                                <th>53' Each</th>
+                            </tr>
+                        </thead>
+                        <tbody id="landed-costs-fob-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="mb-16 mt-16" style="color: var(--color-cif)">CIF Landed Costs</h3>
+                <div class="table-container">
+                    <table class="data-table" id="landed-costs-cif-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>20' UOM</th>
+                                <th>20' Each</th>
+                                <th>40' UOM</th>
+                                <th>40' Each</th>
+                                <th>40' HC UOM</th>
+                                <th>40' HC Each</th>
+                                <th>45' HC UOM</th>
+                                <th>45' HC Each</th>
+                                <th>53' UOM</th>
+                                <th>53' Each</th>
+                            </tr>
+                        </thead>
+                        <tbody id="landed-costs-cif-body">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Summary Dashboard -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Summary Dashboard</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="section-content">
+                <div class="summary-grid" id="summary-dashboard">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const CONTAINER_CONSTANTS = {
+            '20': 1172,
+            '40': 2366,
+            '40HC': 2694,
+            '45HC': 3040,
+            '53': 3830
+        };
+
+        const CONTAINER_TYPES = ['20', '40', '40HC', '45HC', '53'];
+        const MAX_PRODUCTS = 8;
+
+        // Global state
+        let products = [];
+        let quotationData = {};
+        let addedCosts = {
+            fob: {
+                '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
+            },
+            cif: {
+                '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
+            }
+        };
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadFromStorage();
+            // Don't add product by default - let users start with Section 4
+        });
+
+        function initializeApp() {
+            updateContainerCapacityTable();
+            updateAddedCostsTables();
+            setupEventListeners();
+            updateProgressBar();
+            // Initialize cost tables even with no products
+            updateCostsTables();
+        }
+
+        function setupEventListeners() {
+            // Real-time calculation triggers
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', debounce(() => {
+                    calculateAll();
+                    updateProgressBar();
+                    autoSave();
+                }, 300));
+            });
+
+            // Container capacity percentage change
+            document.getElementById('capacity-percentage').addEventListener('input', updateContainerCapacityTable);
+            
+            // OSO percentage validation
+            document.getElementById('oso-percentage').addEventListener('input', function() {
+                validateOSOPercentage();
+                calculateAll();
+            });
+        }
+        
+        function validateOSOPercentage() {
+            const osoInput = document.getElementById('oso-percentage');
+            const errorDiv = document.getElementById('oso-percentage-error');
+            const osoValue = parseFloat(osoInput.value) || 0;
+            
+            if (osoValue >= 100) {
+                osoInput.classList.add('error');
+                errorDiv.textContent = 'OSO % must be less than 100%. At 100%, cost calculation would be infinite.';
+                return false;
+            } else if (osoValue < 0) {
+                osoInput.classList.add('error');
+                errorDiv.textContent = 'OSO % cannot be negative.';
+                return false;
+            } else {
+                osoInput.classList.remove('error');
+                errorDiv.textContent = '';
+                return true;
+            }
+        }
+
+        function updateAddedCostsTables() {
+            updateAddedCostsTable('fob');
+            updateAddedCostsTable('cif');
+        }
+
+        function updateAddedCostsTable(type) {
+            const tbody = document.getElementById(`${type}-added-costs-table`);
+            tbody.innerHTML = '';
+            
+            CONTAINER_TYPES.forEach(containerType => {
+                const costs = addedCosts[type][containerType];
+                const totalAddedCosts = costs.hsCode + costs.tariffs + costs.inland + costs.others;
+                const totalQuantityInContainer = calculateTotalQuantityInContainer(containerType);
+                const totalAddedCostsPerUOM = totalQuantityInContainer > 0 ? totalAddedCosts / totalQuantityInContainer : 0;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${containerType}' Container</td>
+                    <td><input type="number" value="${costs.hsCode}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'hsCode', parseFloat(this.value) || 0)"></td>
+                    <td><input type="number" value="${costs.tariffs}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'tariffs', parseFloat(this.value) || 0)"></td>
+                    <td><input type="number" value="${costs.inland}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'inland', parseFloat(this.value) || 0)"></td>
+                    <td><input type="number" value="${costs.others}" min="0" step="0.01" onchange="updateAddedCost('${type}', '${containerType}', 'others', parseFloat(this.value) || 0)"></td>
+                    <td class="calculated">$${totalAddedCosts.toFixed(2)}</td>
+                    <td class="calculated">$${totalAddedCostsPerUOM.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateAddedCost(type, containerType, costType, value) {
+            addedCosts[type][containerType][costType] = value;
+            calculateAll();
+        }
+
+        function calculateTotalQuantityInContainer(containerType) {
+            let total = 0;
+            products.forEach(product => {
+                if (quotationData[product.id] && quotationData[product.id][containerType]) {
+                    total += quotationData[product.id][containerType].qty || 0;
+                }
+            });
+            return total;
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        function updateContainerCapacityTable() {
+            const capacityPercentage = parseFloat(document.getElementById('capacity-percentage').value) || 100;
+            const tbody = document.getElementById('container-capacity-table');
+            
+            tbody.innerHTML = '';
+            
+            CONTAINER_TYPES.forEach(type => {
+                const baseCapacity = CONTAINER_CONSTANTS[type];
+                const actualCapacity = Math.round(baseCapacity * (capacityPercentage / 100));
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${type}' Container</td>
+                    <td class="calculated">${baseCapacity.toLocaleString()}</td>
+                    <td class="calculated">${actualCapacity.toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addProduct() {
+            if (products.length >= MAX_PRODUCTS) {
+                alert(`Maximum ${MAX_PRODUCTS} products allowed`);
+                return;
+            }
+
+            const productId = 'product_' + Date.now();
+            const product = {
+                id: productId,
+                description: '',
+                brand: '',
+                pack: 1,
+                size: '',
+                cbf: 0,
+                weight: 0,
+                fobInitialCost: 0,
+                cifInitialCost: 0
+            };
+
+            products.push(product);
+            updateProductTables();
+            updateProductCount();
+            calculateAll();
+        }
+
+        function removeProduct(productId) {
+            products = products.filter(p => p.id !== productId);
+            updateProductTables();
+            updateProductCount();
+            calculateAll();
+        }
+
+        function duplicateProduct() {
+            if (products.length === 0) {
+                alert('No products to duplicate');
+                return;
+            }
+            
+            if (products.length >= MAX_PRODUCTS) {
+                alert(`Maximum ${MAX_PRODUCTS} products allowed`);
+                return;
+            }
+
+            const lastProduct = products[products.length - 1];
+            const duplicatedProduct = {
+                ...lastProduct,
+                id: 'product_' + Date.now(),
+                description: lastProduct.description + ' (Copy)'
+            };
+
+            products.push(duplicatedProduct);
+            updateProductTables();
+            updateProductCount();
+        }
+
+        function clearAllProducts() {
+            if (confirm('Are you sure you want to clear all products?')) {
+                products = [];
+                updateProductTables();
+                updateProductCount();
+                calculateAll();
+            }
+        }
+
+        function updateProductCount() {
+            document.getElementById('product-count').textContent = products.length;
+        }
+
+        function updateProductTables() {
+            updateMainProductTable();
+            updateQuotationTables();
+            updateLandedCostsTables();
+            updateCostsTables();
+            updateAddedCostsTables();
+        }
+
+        function updateMainProductTable() {
+            const tbody = document.getElementById('product-table-body');
+            tbody.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="text" value="${product.description}" onchange="updateProduct('${product.id}', 'description', this.value)"></td>
+                    <td><input type="text" value="${product.brand}" onchange="updateProduct('${product.id}', 'brand', this.value)"></td>
+                    <td><input type="number" value="${product.pack}" min="1" onchange="updateProduct('${product.id}', 'pack', parseFloat(this.value) || 1)"></td>
+                    <td><input type="text" value="${product.size}" onchange="updateProduct('${product.id}', 'size', this.value)"></td>
+                    <td class="calculated fob">$${calculateFOBUOMPrice(product).toFixed(2)}</td>
+                    <td class="calculated fob">$${calculateFOBEachPrice(product).toFixed(2)}</td>
+                    <td class="calculated cif">$${calculateCIFUOMPrice(product).toFixed(2)}</td>
+                    <td class="calculated cif">$${calculateCIFEachPrice(product).toFixed(2)}</td>
+                    <td><input type="number" value="${product.cbf}" min="0" step="0.01" onchange="updateProduct('${product.id}', 'cbf', parseFloat(this.value) || 0)"></td>
+                    <td><input type="number" value="${product.weight}" min="0" step="0.01" onchange="updateProduct('${product.id}', 'weight', parseFloat(this.value) || 0)"></td>
+                    <td><button class="btn btn--danger btn--sm" onclick="removeProduct('${product.id}')">🗑️</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateQuotationTables() {
+            updateQuotationTable('fob');
+            updateQuotationTable('cif');
+        }
+
+        function updateQuotationTable(type) {
+            const tbody = document.getElementById(`${type}-quotation-table-body`);
+            tbody.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const row = document.createElement('tr');
+                let html = `<td>${product.description || `Product ${index + 1}`}</td>`;
+                
+                // Add container quantity and cost columns
+                CONTAINER_TYPES.forEach(containerType => {
+                    const qty = quotationData[product.id] && quotationData[product.id][containerType] ? quotationData[product.id][containerType][`${type}Qty`] || 0 : 0;
+                    const cost = calculateContainerCost(product, containerType, qty, type);
+                    
+                    html += `
+                        <td><input type="number" value="${qty}" min="0" step="1" onchange="updateQuotationData('${product.id}', '${containerType}', '${type}Qty', parseInt(this.value) || 0)"></td>
+                        <td class="calculated">$${cost.toFixed(2)}</td>
+                    `;
+                });
+                
+                // HS Code percentage and charge
+                const hsCodePercent = quotationData[product.id] ? quotationData[product.id][`${type}HsCodePercent`] || 0 : 0;
+                const hsCodeCharge = calculateHSCodeCharge(product, type);
+                
+                html += `
+                    <td><input type="number" value="${hsCodePercent}" min="0" max="100" step="0.01" onchange="updateQuotationData('${product.id}', '${type}HsCodePercent', 'value', parseFloat(this.value) || 0)"></td>
+                    <td class="calculated">$${hsCodeCharge.toFixed(2)}</td>
+                `;
+                
+                row.innerHTML = html;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateLandedCostsTables() {
+            updateLandedCostsTable('fob');
+            updateLandedCostsTable('cif');
+        }
+
+        function updateLandedCostsTable(type) {
+            const tbody = document.getElementById(`landed-costs-${type}-body`);
+            tbody.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const row = document.createElement('tr');
+                let html = `<td>${product.description || `Product ${index + 1}`}</td>`;
+                
+                CONTAINER_TYPES.forEach(containerType => {
+                    const landedUOM = calculateLandedUOM(product, containerType, type);
+                    const landedEach = calculateLandedEach(product, containerType, type);
+                    
+                    html += `
+                        <td class="calculated">$${landedUOM.toFixed(2)}</td>
+                        <td class="calculated">$${landedEach.toFixed(2)}</td>
+                    `;
+                });
+                
+                row.innerHTML = html;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateCostsTables() {
+            updateCostsTable('fob');
+            updateCostsTable('cif');
+        }
+
+        function updateCostsTable(type) {
+            const tbody = document.getElementById(`${type}-costs-body`);
+            tbody.innerHTML = '';
+
+            // Always show 8 product slots
+            for (let i = 0; i < MAX_PRODUCTS; i++) {
+                const product = products[i];
+                const row = document.createElement('tr');
+                
+                if (product) {
+                    const initialCost = type === 'fob' ? product.fobInitialCost : product.cifInitialCost;
+                    const costWithOSO = calculateCostWithOSO(initialCost);
+                    
+                    row.innerHTML = `
+                        <td>Product ${i + 1}</td>
+                        <td><input type="number" value="${initialCost}" min="0" step="0.01" onchange="updateProduct('${product.id}', '${type}InitialCost', parseFloat(this.value) || 0)" placeholder="Enter initial cost"></td>
+                        <td class="calculated">$${costWithOSO.toFixed(2)}</td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td>Product ${i + 1}</td>
+                        <td><input type="number" value="0" min="0" step="0.01" onchange="addProductAndUpdateCost(${i}, '${type}InitialCost', parseFloat(this.value) || 0)" placeholder="Enter initial cost"></td>
+                        <td class="calculated">$0.00</td>
+                    `;
+                }
+                tbody.appendChild(row);
+            }
+        }
+
+        function updateProduct(productId, field, value) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product[field] = value;
+                calculateAll();
+                updateProductTables();
+            }
+        }
+
+        function updateQuotationData(productId, containerTypeOrField, field, value) {
+            if (!quotationData[productId]) {
+                quotationData[productId] = {};
+            }
+            
+            if (field === 'value') {
+                // This is for HS code percentage
+                quotationData[productId][containerTypeOrField] = value;
+            } else {
+                // This is for quantities
+                if (!quotationData[productId][containerTypeOrField]) {
+                    quotationData[productId][containerTypeOrField] = {};
+                }
+                quotationData[productId][containerTypeOrField][field] = value;
+            }
+            
+            calculateAll();
+            updateProductTables();
+        }
+
+        // Calculation functions
+        function calculateFOBUOMPrice(product) {
+            return calculateCostWithOSO(product.fobInitialCost);
+        }
+
+        function calculateFOBEachPrice(product) {
+            const uomPrice = calculateFOBUOMPrice(product);
+            return product.pack > 0 ? uomPrice / product.pack : 0;
+        }
+
+        function calculateCIFUOMPrice(product) {
+            return calculateCostWithOSO(product.cifInitialCost);
+        }
+
+        function calculateCIFEachPrice(product) {
+            const uomPrice = calculateCIFUOMPrice(product);
+            return product.pack > 0 ? uomPrice / product.pack : 0;
+        }
+
+        function calculateCostWithOSO(initialCost) {
+            const osoPercent = parseFloat(document.getElementById('oso-percentage').value) || 0;
+            if (initialCost <= 0) return 0;
+            if (osoPercent >= 100) {
+                document.getElementById('oso-percentage-error').textContent = 'OSO % cannot be 100% or higher';
+                return 0;
+            }
+            document.getElementById('oso-percentage-error').textContent = '';
+            return initialCost / (1 - (osoPercent / 100));
+        }
+        
+        function addProductAndUpdateCost(index, field, value) {
+            if (value > 0) {
+                // Create the product if it doesn't exist
+                while (products.length <= index) {
+                    addProduct();
+                }
+                
+                // Update the cost
+                const product = products[index];
+                if (product) {
+                    updateProduct(product.id, field, value);
+                }
+            }
+        }
+
+        function calculateContainerCost(product, containerType, quantity, type = 'fob') {
+            const uomPrice = type === 'fob' ? calculateFOBUOMPrice(product) : calculateCIFUOMPrice(product);
+            return quantity * uomPrice;
+        }
+
+        function calculateHSCodeCharge(product, type = 'fob') {
+            if (!quotationData[product.id]) return 0;
+            
+            const hsCodePercent = quotationData[product.id][`${type}HsCodePercent`] || 0;
+            let totalCost = 0;
+            
+            CONTAINER_TYPES.forEach(containerType => {
+                if (quotationData[product.id][containerType]) {
+                    const qty = quotationData[product.id][containerType][`${type}Qty`] || 0;
+                    const containerCost = calculateContainerCost(product, containerType, qty, type);
+                    totalCost += containerCost;
+                }
+            });
+            
+            return totalCost * (hsCodePercent / 100);
+        }
+
+        function calculateLandedUOM(product, containerType, type) {
+            const basePrice = type === 'fob' ? calculateFOBUOMPrice(product) : calculateCIFUOMPrice(product);
+            const addedCostsPerUOM = calculateAddedCostsPerUOM(containerType, type);
+            return basePrice + addedCostsPerUOM;
+        }
+
+        function calculateAddedCostsPerUOM(containerType, type) {
+            const costs = addedCosts[type][containerType];
+            const totalAddedCosts = costs.hsCode + costs.tariffs + costs.inland + costs.others;
+            const totalQuantityInContainer = calculateTotalQuantityInContainer(containerType);
+            return totalQuantityInContainer > 0 ? totalAddedCosts / totalQuantityInContainer : 0;
+        }
+
+        function calculateLandedEach(product, containerType, type) {
+            const landedUOM = calculateLandedUOM(product, containerType, type);
+            return product.pack > 0 ? landedUOM / product.pack : 0;
+        }
+
+        function calculateAll() {
+            updateProductTables();
+            updateSummaryDashboard();
+        }
+
+        function updateSummaryDashboard() {
+            const dashboard = document.getElementById('summary-dashboard');
+            
+            // Calculate totals
+            let totalProducts = products.length;
+            let totalFOBContainers = 0;
+            let totalCIFContainers = 0;
+            let totalWeight = 0;
+            let totalFOBValue = 0;
+            let totalCIFValue = 0;
+            let totalFOBQuotationValue = 0;
+            let totalCIFQuotationValue = 0;
+            
+            products.forEach(product => {
+                totalWeight += product.weight;
+                totalFOBValue += calculateFOBUOMPrice(product);
+                totalCIFValue += calculateCIFUOMPrice(product);
+                
+                if (quotationData[product.id]) {
+                    CONTAINER_TYPES.forEach(containerType => {
+                        if (quotationData[product.id][containerType]) {
+                            const fobQty = quotationData[product.id][containerType].fobQty || 0;
+                            const cifQty = quotationData[product.id][containerType].cifQty || 0;
+                            
+                            totalFOBContainers += fobQty;
+                            totalCIFContainers += cifQty;
+                            
+                            totalFOBQuotationValue += calculateContainerCost(product, containerType, fobQty, 'fob');
+                            totalCIFQuotationValue += calculateContainerCost(product, containerType, cifQty, 'cif');
+                        }
+                    });
+                }
+            });
+            
+            const osoPercent = parseFloat(document.getElementById('oso-percentage').value) || 0;
+            const profitMargin = osoPercent;
+            
+            dashboard.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-value">${totalProducts}</div>
+                    <div class="summary-label">Total Products</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${totalFOBContainers + totalCIFContainers}</div>
+                    <div class="summary-label">Total Containers</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${totalWeight.toLocaleString()}</div>
+                    <div class="summary-label">Total Weight (lbs)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">$${totalFOBQuotationValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="summary-label">FOB Quotation Value</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">$${totalCIFQuotationValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="summary-label">CIF Quotation Value</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${profitMargin.toFixed(1)}%</div>
+                    <div class="summary-label">Profit Margin (OSO %)</div>
+                </div>
+            `;
+        }
+
+        function updateProgressBar() {
+            let totalFields = 0;
+            let filledFields = 0;
+            
+            // Check required fields
+            const requiredFields = [
+                'customer-name',
+                'oso-percentage'
+            ];
+            
+            requiredFields.forEach(fieldId => {
+                totalFields++;
+                const field = document.getElementById(fieldId);
+                if (field && field.value.trim()) {
+                    filledFields++;
+                }
+            });
+            
+            // Check if at least one product exists
+            totalFields++;
+            if (products.length > 0) {
+                filledFields++;
+            }
+            
+            // Check if products have initial costs
+            products.forEach(product => {
+                totalFields += 2; // FOB and CIF initial costs
+                if (product.fobInitialCost > 0) filledFields++;
+                if (product.cifInitialCost > 0) filledFields++;
+            });
+            
+            const progress = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
+            
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${progress}%`;
+        }
+
+        // Template and storage functions (in-memory only)
+        let savedTemplates = [];
+        let autoSaveData = null;
+
+        function saveTemplate() {
+            const templateName = prompt('Enter template name:');
+            if (!templateName) return;
+            
+            const template = {
+                name: templateName,
+                timestamp: new Date().toISOString(),
+                data: {
+                    products: products,
+                    quotationData: quotationData,
+                    addedCosts: addedCosts,
+                    formData: getFormData()
+                }
+            };
+            
+            savedTemplates.push(template);
+            alert('Template saved successfully! (Note: Templates are saved for this session only)');
+        }
+
+        function loadTemplate() {
+            if (savedTemplates.length === 0) {
+                alert('No templates found for this session');
+                return;
+            }
+            
+            const templateList = savedTemplates.map((t, i) => `${i + 1}. ${t.name} (${new Date(t.timestamp).toLocaleDateString()})`).join('\n');
+            const selection = prompt(`Select template:\n${templateList}\n\nEnter number:`);
+            
+            const index = parseInt(selection) - 1;
+            if (index >= 0 && index < savedTemplates.length) {
+                loadTemplateData(savedTemplates[index].data);
+                alert('Template loaded successfully!');
+            }
+        }
+
+        function loadTemplateData(data) {
+            products = data.products || [];
+            quotationData = data.quotationData || {};
+            addedCosts = data.addedCosts || { fob: {}, cif: {} };
+            
+            if (data.formData) {
+                Object.keys(data.formData).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data.formData[key];
+                    }
+                });
+            }
+            
+            calculateAll();
+            updateProductCount();
+            updateContainerCapacityTable();
+        }
+
+        function getFormData() {
+            const formData = {};
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.id) {
+                    formData[input.id] = input.value;
+                }
+            });
+            return formData;
+        }
+
+        function autoSave() {
+            autoSaveData = {
+                products: products,
+                quotationData: quotationData,
+                addedCosts: addedCosts,
+                formData: getFormData(),
+                timestamp: new Date().toISOString()
+            };
+            // Data is auto-saved in memory for this session
+        }
+
+        function loadFromStorage() {
+            // Load from in-memory auto-save if available
+            if (autoSaveData) {
+                try {
+                    loadTemplateData(autoSaveData);
+                } catch (e) {
+                    console.error('Error loading saved data:', e);
+                }
+            }
+        }
+
+        function newQuote() {
+            if (confirm('Start a new quote? All unsaved data will be lost.')) {
+                products = [];
+                quotationData = {};
+                addedCosts = {
+                    fob: {
+                        '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
+                    },
+                    cif: {
+                        '20': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '40': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '40HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '45HC': { hsCode: 0, tariffs: 0, inland: 0, others: 0 },
+                        '53': { hsCode: 0, tariffs: 0, inland: 0, others: 0 }
+                    }
+                };
+                
+                // Clear all form fields
+                document.querySelectorAll('input, select').forEach(input => {
+                    if (input.type === 'number') {
+                        if (input.id === 'capacity-percentage') {
+                            input.value = '100';
+                        } else if (input.id === 'oso-percentage') {
+                            input.value = '15';
+                        } else {
+                            input.value = '0';
+                        }
+                    } else {
+                        input.value = '';
+                    }
+                });
+                
+                calculateAll();
+                updateProductCount();
+                updateContainerCapacityTable();
+                updateCostsTables(); // Ensure cost tables are updated
+            }
+        }
+
+        function exportToPDF() {
+            window.print();
+        }
+        
+        function runTestCases() {
+            if (!confirm('This will load test data and validate calculations. Continue?')) {
+                return;
+            }
+            
+            // Clear current data
+            newQuote();
+            
+            // Set OSO percentage to 15%
+            document.getElementById('oso-percentage').value = '15';
+            document.getElementById('customer-name').value = 'Test Customer';
+            
+            // Add a test product
+            addProduct();
+            
+            // Set test values
+            if (products.length > 0) {
+                const product = products[0];
+                updateProduct(product.id, 'description', 'Test Product 1');
+                updateProduct(product.id, 'pack', 12);
+                updateProduct(product.id, 'fobInitialCost', 10);
+                updateProduct(product.id, 'cifInitialCost', 12);
+                
+                // Force recalculation
+                calculateAll();
+                
+                // Test calculations
+                setTimeout(() => {
+                    const osoPercent = 15;
+                    const fobInitial = 10;
+                    const pack = 12;
+                    
+                    const expectedFOBWithOSO = fobInitial / (1 - (osoPercent / 100)); // Should be 11.76
+                    const expectedFOBEach = expectedFOBWithOSO / pack; // Should be 0.98
+                    
+                    const actualFOBWithOSO = calculateFOBUOMPrice(product);
+                    const actualFOBEach = calculateFOBEachPrice(product);
+                    
+                    let testResults = 'TEST RESULTS:\n\n';
+                    testResults += `Test 1 - OSO Calculation:\n`;
+                    testResults += `Expected FOB with OSO: $${expectedFOBWithOSO.toFixed(2)}\n`;
+                    testResults += `Actual FOB with OSO: $${actualFOBWithOSO.toFixed(2)}\n`;
+                    testResults += `Result: ${Math.abs(expectedFOBWithOSO - actualFOBWithOSO) < 0.01 ? 'PASS ✅' : 'FAIL ❌'}\n\n`;
+                    
+                    testResults += `Test 2 - Pack Division:\n`;
+                    testResults += `Expected FOB Each: $${expectedFOBEach.toFixed(2)}\n`;
+                    testResults += `Actual FOB Each: $${actualFOBEach.toFixed(2)}\n`;
+                    testResults += `Result: ${Math.abs(expectedFOBEach - actualFOBEach) < 0.01 ? 'PASS ✅' : 'FAIL ❌'}\n\n`;
+                    
+                    // Test container cost calculation
+                    if (!quotationData[product.id]) quotationData[product.id] = {};
+                    if (!quotationData[product.id]['20']) quotationData[product.id]['20'] = {};
+                    quotationData[product.id]['20']['fobQty'] = 2;
+                    
+                    calculateAll();
+                    
+                    const expectedContainerCost = 2 * expectedFOBWithOSO; // Should be 23.52
+                    const actualContainerCost = calculateContainerCost(product, '20', 2, 'fob');
+                    
+                    testResults += `Test 3 - Container Cost:\n`;
+                    testResults += `Expected Container Cost: $${expectedContainerCost.toFixed(2)}\n`;
+                    testResults += `Actual Container Cost: $${actualContainerCost.toFixed(2)}\n`;
+                    testResults += `Result: ${Math.abs(expectedContainerCost - actualContainerCost) < 0.01 ? 'PASS ✅' : 'FAIL ❌'}\n\n`;
+                    
+                    alert(testResults);
+                }, 500);
+            }
+        }
+
+        // Auto-save every 2 seconds
+        setInterval(autoSave, 2000);
+    </script>
+</body>
+</html>
